@@ -55,7 +55,28 @@
         .glass-input:focus { border-color: #00d2ff; box-shadow: 0 0 0 3px rgba(0,210,255,0.1); }
         .glass-input::placeholder { color: rgba(255,255,255,0.3); }
         img { max-width: 100%; height: auto; }
-        @media (max-width: 640px) { .slide { background-size: cover; } }
+        @media (max-width: 640px) { .slide { background-size: cover; }
+            h1, .hero-title { font-size: 2rem !important; line-height: 1.1 !important; }
+            .hero-subtitle { font-size: 1rem !important; }
+            .hero-buttons a { font-size: 0.9rem !important; padding: 12px 24px !important; width: 100%; text-align: center; }
+            .hero-buttons { flex-direction: column; width: 100%; }
+            section { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+            .container { padding-left: 1rem !important; padding-right: 1rem !important; }
+            .fixed.bottom-6.right-6 { bottom: 16px !important; right: 16px !important; width: 52px !important; height: 52px !important; font-size: 1.5rem !important; }
+            .back-to-top { bottom: 80px !important; right: 16px !important; width: 38px !important; height: 38px !important; }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+            h1, .hero-title { font-size: 3.5rem !important; }
+            .card-plan { padding: 2rem !important; }
+        }
+        @media (min-width: 1920px) {
+            .container { max-width: 1400px !important; }
+            h1, .hero-title { font-size: 5rem !important; }
+            body { font-size: 1.1rem; }
+            .card-plan { padding: 3rem !important; }
+            .btn, button, a { transition: transform 0.2s, opacity 0.2s; }
+            .btn:hover, button:hover, a:hover { transform: scale(1.05); }
+        }
         .z-10 { position: relative; z-index: 10; }
         .nav-blur { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .mobile-menu { position: fixed; inset: 0; background: rgba(5,5,5,0.98); backdrop-filter: blur(20px); z-index: 40; display: none; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; }
@@ -137,9 +158,9 @@
             <span class="hero-dot" data-slide="2"></span>
         </div>
         <div class="z-10 max-w-5xl mt-16" data-aos="fade-up" data-aos-duration="1000">
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight uppercase tracking-tighter glow-text">Pague pouco e tenha o melhor do Cinema, TV e Esportes na sua casa.</h1>
-            <p class="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light">Milhares de canais, filmes e séries liberados com imagem 4K e zero travamentos.</p>
-            <div class="flex flex-col md:flex-row gap-5 justify-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight uppercase tracking-tighter glow-text hero-title">Pague pouco e tenha o melhor do Cinema, TV e Esportes na sua casa.</h1>
+            <p class="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light hero-subtitle">Milhares de canais, filmes e séries liberados com imagem 4K e zero travamentos.</p>
+            <div class="flex flex-col md:flex-row gap-5 justify-center hero-buttons">
                 <a href="https://wa.me/5519986105935?text=Olá! Quero pedir meu teste grátis." class="bg-green-500 text-white px-10 py-5 rounded-full font-bold text-xl shadow-2xl shadow-green-900/40 transition-all uppercase hover:brightness-110 heartbeat">Pedir meu teste grátis</a>
                 <a href="#planos" class="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-5 rounded-full font-bold text-xl transition-all uppercase hover:bg-white/20">Ver Planos</a>
             </div>

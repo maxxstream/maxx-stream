@@ -577,9 +577,34 @@
 
         /* ── Responsive ── */
         @media (max-width: 480px) {
-            .card { padding: 32px 22px; border-radius: 24px; margin: 12px; }
-            .orb-1 { width: 250px; height: 250px; }
-            .orb-2 { width: 200px; height: 200px; }
+            .card { padding: 24px 16px; border-radius: 20px; margin: 8px; max-width: 100%; }
+            .orb-1 { width: 200px; height: 200px; }
+            .orb-2 { width: 150px; height: 150px; }
+            .orb-3 { display: none; }
+            .logo-wrap h1 { font-size: 1.1rem; }
+            .tab-btn { font-size: 0.7rem; padding: 10px 6px; }
+            .tab-btn i { margin-right: 3px; }
+            .input-wrap input { padding: 12px 36px 12px 36px; font-size: 0.82rem; }
+            .benefits-grid { grid-template-columns: 1fr; gap: 12px; }
+            .benefit-card { padding: 20px 16px; }
+            .benefits h2 { font-size: 1.3rem; }
+            #otp-modal > div { padding: 24px !important; margin: 12px !important; }
+            #otp-input { font-size: 1.4rem !important; padding: 12px !important; }
+        }
+        @media (min-width: 481px) and (max-width: 1024px) {
+            .card { max-width: 420px; }
+            .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1600px) {
+            body { font-size: 1.05rem; }
+            .card { max-width: 480px; padding: 48px 40px; }
+            .input-wrap input { padding: 16px 44px 16px 44px; font-size: 1rem; }
+            .btn-primary { padding: 18px; font-size: 0.9rem; }
+            .benefits-grid { grid-template-columns: repeat(3, 1fr); max-width: 1100px; margin: 0 auto; }
+            .benefits h2 { font-size: 2rem; }
+            .benefit-card { padding: 32px 24px; }
+            .benefit-card h3 { font-size: 1.1rem; }
+            .benefit-card p { font-size: 0.85rem; }
         }
     </style>
 </head>
