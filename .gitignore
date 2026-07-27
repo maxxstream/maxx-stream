@@ -1,0 +1,17 @@
+node_modules/
+.env
+*.sqlite
+*.db
+.DS_Store
+*.log
+nssm.exe
+CREDENCIAIS.txt
+backend/src/services/.wwebjs_auth/
+scripts/stdout*.txt
+scripts/stderr*.txt
+data/
+dist/
+build/
+.wwebjs_cache/
+Instalar Servico 24-7.bat
+query

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QR Code WhatsApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#070712;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center}
+        h1{font-size:1.4rem;margin-bottom:8px;color:#00d2ff}
+        p{color:rgba(255,255,255,0.4);font-size:0.85rem;margin-bottom:24px}
+        #qrcode{background:#fff;padding:16px;border-radius:16px;display:inline-block;margin-bottom:20px}
+        #qrcode img,#qrcode canvas{display:block;margin:0 auto;max-width:100%}
+        .status{font-size:0.8rem;color:rgba(255,255,255,0.3)}
+        .erro{color:#ef4444;font-size:0.85rem}
+        .btn{display:inline-block;margin-top:16px;padding:12px 32px;background:#00d2ff;color:#000;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.9rem;cursor:pointer;border:none}
+        .btn:hover{opacity:0.9}
+        .carregando{color:rgba(255,255,255,0.3);font-size:0.9rem}
+    </style>
+</head>
+<body>
+    <h1>📱 Conectar WhatsApp</h1>
+    <p>Escaneie o QR Code abaixo com o WhatsApp do seu celular</p>
+    <div id="qrcode"><div class="carregando">Gerando QR Code...</div></div>
+    <div id="status" class="status">Aguardando leitura...</div>
+    <button class="btn" onclick="atualizar()">🔄 Atualizar QR Code</button>
+
+    <script>
+        const API = window.location.origin + '/api';
+        let qrInstance = null;
+
+        async function atualizar() {
+            document.getElementById('qrcode').innerHTML = '<div class="carregando">Gerando QR Code...</div>';
+            document.getElementById('status').textContent = 'Aguardando leitura...';
+            document.getElementById('status').className = 'status';
+
+            try {
+                const r = await fetch(API + '/messaging/qr');
+                const d = await r.json();
+
+                if (d.ready === true) {
+                    document.getElementById('qrcode').innerHTML = '<div style="color:#22c55e;font-size:1.2rem;font-weight:700;padding:20px">✅ WhatsApp já conectado!</div>';
+                    document.getElementById('status').textContent = 'WhatsApp conectado com sucesso!';
+                    document.getElementById('status').className = 'status';
+                    return;
+                }
+
+                if (!d.qr) {
+                    document.getElementById('qrcode').innerHTML = '<div class="erro">Nenhum QR Code disponível. O servidor pode estar iniciando...</div>';
+                    return;
+                }
+
+                document.getElementById('qrcode').innerHTML = '';
+                qrInstance = new QRCode(document.getElementById('qrcode'), {
+                    text: d.qr,
+                    width: 280,
+                    height: 280,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                document.getElementById('status').textContent = 'Escaneie com o WhatsApp no seu celular 📱';
+            } catch(e) {
+                document.getElementById('qrcode').innerHTML = '<div class="erro">Erro ao conectar: ' + e.message + '</div>';
+            }
+        }
+
+        atualizar();
+        setInterval(atualizar, 15000);
+    </script>
+</body>
+</html>

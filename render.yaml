@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: maxx-stream
+    env: node
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: cd backend && node src/server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_VERSION
+        value: 18
+      - key: BREVO_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: suportemaxxstream@gmail.com
+      - key: EMAIL_FROM_NAME
+        value: MAXX STREAM
+      - key: SEVENTV_API_KEY
+        sync: false
+      - key: SEVENTV_PARTNER_ID
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true

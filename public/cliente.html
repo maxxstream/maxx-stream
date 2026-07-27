@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAXX STREAM — Minha Conta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#070712;color:#fff;min-height:100vh}
+        .container{max-width:720px;margin:0 auto;padding:20px}
+        header{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid rgba(168,85,247,0.1);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo img{height:32px;filter:drop-shadow(0 0 12px rgba(168,85,247,0.3))}
+        .logo span{font-weight:800;font-size:1rem;background:linear-gradient(135deg,#fff 60%,rgba(255,255,255,0.5));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;margin-bottom:16px}
+        .card h2{font-size:1rem;font-weight:700;margin-bottom:4px}
+        .card p{font-size:0.8rem;color:rgba(255,255,255,0.4)}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .stat{background:rgba(255,255,255,0.04);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.06)}
+        .stat .val{font-size:1.5rem;font-weight:800}
+        .stat .lbl{font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;transition:all 0.3s;text-decoration:none}
+        .btn-primary{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff}
+        .btn-primary:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(168,85,247,0.3)}
+        .btn-wa{background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.2);color:#25d366;padding:10px 20px;font-size:0.8rem}
+        .btn-wa:hover{background:rgba(37,211,102,0.2)}
+        .btn-out{color:#ef4444;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15)}
+        .btn-out:hover{background:rgba(239,68,68,0.15)}
+        .info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem}
+        .info-row:last-child{border-bottom:none}
+        .info-row .label{color:rgba(255,255,255,0.3)}
+        .info-row .value{font-weight:600}
+        .badge{padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
+        .badge-green{background:rgba(34,197,94,0.12);color:#22c55e}
+        .badge-yellow{background:rgba(234,179,8,0.12);color:#eab308}
+        .badge-red{background:rgba(239,68,68,0.12);color:#ef4444}
+        .footer{text-align:center;padding:32px 0;font-size:0.7rem;color:rgba(255,255,255,0.15)}
+        .loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:rgba(255,255,255,0.3)}
+        .hidden{display:none!important}
+        @media(max-width:480px){.grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">
+            <img src="logo.jpg" onerror="this.style.display='none'">
+            <span>MAXX STREAM</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <a href="https://wa.me/5519986105935" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> Suporte</a>
+            <button class="btn btn-out" onclick="sair()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </header>
+
+    <div id="conteudo">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+            <div id="avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem">U</div>
+            <div>
+                <div style="font-weight:700;font-size:1.1rem" id="user-nome">—</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.3)" id="user-email">—</div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-bottom:16px">
+            <div class="stat" style="border-color:rgba(168,85,247,0.15)">
+                <div class="val" style="color:#a855f7" id="stat-creditos">—</div>
+                <div class="lbl">Meus Créditos</div>
+            </div>
+            <div class="stat" style="border-color:rgba(0,210,255,0.15)">
+                <div class="val" style="color:#00d2ff" id="stat-seventv">—</div>
+                <div class="lbl">Status Seventv</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-satellite-dish" style="color:#a855f7"></i> Conta Seventv</h2>
+            <p style="margin-bottom:16px">Status da sua integração IPTV</p>
+            <div id="seventv-info">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="gerarTeste()"><i class="fas fa-flask"></i> Gerar Conta Teste</button>
+            </div>
+        </div>
+
+        <div class="card" id="card-temporizador">
+            <h2><i class="fas fa-clock" style="color:#f59e0b"></i> Oferta Relâmpago</h2>
+            <p style="margin-bottom:12px">Tempo restante para garantir sua condição especial!</p>
+            <div id="timer-cliente-display" class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+                <div class="stat" style="border-color:rgba(245,158,11,0.2)">
+                    <div class="val" style="color:#f59e0b;font-size:2rem" id="timer-h">05</div>
+                    <div class="lbl">Horas</div>
+                </div>
+                <div class="stat" style="border-color:rgba(245,158,11,0.2)">
+                    <div class="val" style="color:#f59e0b;font-size:2rem" id="timer-m">00</div>
+                    <div class="lbl">Minutos</div>
+                </div>
+                <div class="stat" style="border-color:rgba(245,158,11,0.2)">
+                    <div class="val" style="color:#f59e0b;font-size:2rem" id="timer-s">00</div>
+                    <div class="lbl">Segundos</div>
+                </div>
+            </div>
+            <div id="timer-cliente-expirado" class="hidden" style="text-align:center;padding:16px">
+                <div style="font-size:1.5rem;font-weight:800;color:#ef4444">⏰ Tempo Esgotado</div>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:8px">Sua oferta especial expirou. Entre em contato para novas condições.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-user" style="color:#a855f7"></i> Meus Dados</h2>
+            <p style="margin-bottom:12px">Informações da sua conta</p>
+            <div id="user-info"></div>
+        </div>
+    </div>
+
+    <div class="footer">MAXX STREAM — Sua plataforma IPTV</div>
+</div>
+
+<script>
+    const API = window.location.origin + '/api';
+
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (!token || !user.email) { window.location.href = 'login.html'; }
+
+async function apiFetch(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...opts.headers };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const r = await fetch(API + path, { ...opts, headers });
+    if (r.status === 401) { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'login.html'; }
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erro');
+    return d;
+}
+
+async function carregar() {
+    document.getElementById('user-nome').textContent = user.name || 'Usuário';
+    document.getElementById('user-email').textContent = user.email || '';
+    document.getElementById('avatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+    document.getElementById('stat-creditos').textContent = user.credits || 0;
+
+    const info = document.getElementById('user-info');
+    info.innerHTML = `
+        <div class="info-row"><span class="label">Nome</span><span class="value">${user.name || '-'}</span></div>
+        <div class="info-row"><span class="label">E-mail</span><span class="value">${user.email || '-'}</span></div>
+        <div class="info-row"><span class="label">Créditos</span><span class="value">${user.credits || 0}</span></div>
+        <div class="info-row"><span class="label">2FA</span><span class="value"><span class="badge ${user.twoFA ? 'badge-green' : 'badge-red'}">${user.twoFA ? 'Ativado' : 'Desativado'}</span></span></div>
+    `;
+
+    try {
+        const s = await apiFetch('/seventv/status');
+        const creds = s.credits || {};
+        document.getElementById('stat-seventv').textContent = s.connected ? 'Conectado' : 'Offline';
+        document.getElementById('stat-seventv').style.color = s.connected ? '#22c55e' : '#ef4444';
+        const el = document.getElementById('seventv-info');
+        if (s.connected) {
+            el.innerHTML = `
+                <div class="info-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Conectado</span></span></div>
+                <div class="info-row"><span class="label">Créditos</span><span class="value">${creds.credits || 0}</span></div>
+                <div class="info-row"><span class="label">Reseller ID</span><span class="value">${creds.reseller_id || '-'}</span></div>
+            `;
+        } else {
+            el.innerHTML = `<div class="info-row"><span class="label">Status</span><span class="value"><span class="badge badge-yellow">Não configurado</span></span></div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:8px">Contate o suporte para ativar sua integração IPTV.</div>`;
+        }
+    } catch(e) {
+        document.getElementById('seventv-info').innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:0.8rem">Indisponível no momento</div>';
+    }
+}
+
+async function gerarTeste() {
+    try {
+        const data = await apiFetch('/seventv/sync', { method:'POST' });
+        if (data.credits && data.credits.simulated) {
+            alert('Conta teste gerada!\nUsuário: ' + data.credits.username + '\nSenha: ' + data.credits.password);
+        } else {
+            alert('Conta teste gerada com sucesso!');
+        }
+        carregar();
+    } catch(e) {
+        alert('Erro ao gerar teste: ' + e.message);
+    }
+}
+
+function sair() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+carregar();
+
+// Timer de 5 horas com WhatsApp quando faltar 1 hora
+(function() {
+    const KEY_FIM = 'maxxClienteTimerFim';
+    const KEY_ENV = 'maxxClienteTimerEnviado';
+    const DUR = 5 * 60 * 60 * 1000;
+    const UMA_HORA = 60 * 60 * 1000;
+    const elDisplay = document.getElementById('timer-cliente-display');
+    const elExpirou = document.getElementById('timer-cliente-expirado');
+    const elH = document.getElementById('timer-h');
+    const elM = document.getElementById('timer-m');
+    const elS = document.getElementById('timer-s');
+
+    let end = parseInt(localStorage.getItem(KEY_FIM));
+    if (!end) { end = Date.now() + DUR; localStorage.setItem(KEY_FIM, end); }
+
+    function tick() {
+        let d = end - Date.now();
+        if (d <= 0) {
+            elH.textContent = '00';
+            elM.textContent = '00';
+            elS.textContent = '00';
+            elDisplay.style.display = 'none';
+            elExpirou.classList.remove('hidden');
+            return;
+        }
+        elH.textContent = String(Math.floor(d / 3600000)).padStart(2, '0');
+        elM.textContent = String(Math.floor((d % 3600000) / 60000)).padStart(2, '0');
+        elS.textContent = String(Math.floor((d % 60000) / 1000)).padStart(2, '0');
+
+        // Aviso quando faltar 1 hora
+        if (d <= UMA_HORA && !localStorage.getItem(KEY_ENV) && user.phone) {
+            localStorage.setItem(KEY_ENV, 'true');
+            fetch(API + '/messaging/send-whatsapp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ telefone: user.phone, mensagem: 'SUA OFERTA ESPECIAL NA MAXX STREAM ESTA ACABANDO! FALTA SO 1 HORA. GARANTA JA!' })
+            }).catch(() => {});
+        }
+    }
+    tick();
+    if (elDisplay.style.display === 'none') return;
+    setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
