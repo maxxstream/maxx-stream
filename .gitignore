@@ -9,7 +9,8 @@ CREDENCIAIS.txt
 backend/src/services/.wwebjs_auth/
 scripts/stdout*.txt
 scripts/stderr*.txt
-data/
+data/*
+!data/.gitkeep
 dist/
 build/
 .wwebjs_cache/
