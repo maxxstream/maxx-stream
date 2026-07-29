@@ -4,8 +4,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 
 export default function App() {
-  // Simple state routing: 'login' | 'register' | 'dashboard'
-  const [page, setPage] = useState('login');
+  const token = localStorage.getItem('token');
+  const [page, setPage] = useState(token ? 'dashboard' : 'login');
 
   return (
     <div className="min-h-screen bg-[#050508] relative overflow-hidden flex flex-col justify-between">

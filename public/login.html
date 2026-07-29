@@ -929,9 +929,9 @@
                     localStorage.setItem('user', JSON.stringify(data.user));
                     window.location.href = 'cliente.html';
                 } else {
-                    fecharOtp();
-                    mostrarLoading(true, 'Conta criada! Faça o login.');
-                    setTimeout(() => { switchTab('login'); mostrarLoading(false); }, 1500);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'cliente.html';
                 }
             } catch (err) {
                 mostrarErro('otp-modal-erro', err.message);

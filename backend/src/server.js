@@ -110,12 +110,48 @@ async function main() {
   });
 
   const staticPath = path.resolve(__dirname, '..', '..', 'public');
-  app.use(express.static(staticPath));
-
   const frontendDist = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
-  app.use('/app', express.static(frontendDist));
-  app.get('/app/*', (req, res) => {
+
+  // Arquivos públicos (login, cliente, qr, etc.)
+  app.use(express.static(staticPath, { index: false }));
+
+  // Frontend React na raiz — login primeiro
+  app.use(express.static(frontendDist));
+  app.get('/', (req, res) => {
     res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+
+  // Site institucional (landing page) disponível em /site
+  app.get('/site', (req, res) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
+
+  // Acesso rápido do admin: /admin:SENHA
+  app.get(/^\/admin:(.+)/, async (req, res) => {
+    const password = req.params[0];
+    if (password !== 'HEROSHENRIQUE2009') {
+      return res.status(401).send('Senha de admin inválida.');
+    }
+    try {
+      const db = getDb();
+      const result = db.exec(`SELECT * FROM usuarios WHERE email = 'admin@maxxstream.com.br'`);
+      if (!result?.[0]?.values?.length) {
+        return res.status(500).send('Admin não encontrado no banco de dados.');
+      }
+      const row = result[0].values[0];
+      const user = { id: row[0], name: row[1], email: row[2], credits: row[4], twoFA: row[5] };
+      const jwt = require('jsonwebtoken');
+      const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      db.run(`INSERT INTO sessoes (userId, token) VALUES (?, ?)`, [user.id, token]);
+      salvar();
+      res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Redirecionando...</title></head><body><script>
+        localStorage.setItem('token','${token}');
+        localStorage.setItem('user',JSON.stringify({name:'${user.name}',email:'${user.email}',credits:${user.credits},twoFA:${!!user.twoFA}}));
+        window.location.href='/cliente.html';
+      </script></body></html>`);
+    } catch (e) {
+      res.status(500).send('Erro interno: ' + e.message);
+    }
   });
 
   const PORT = process.env.PORT || 5000;

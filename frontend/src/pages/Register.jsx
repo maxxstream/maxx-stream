@@ -96,8 +96,9 @@ export default function Register({ navigate }) {
       if (!r.ok) throw new Error(data.error || 'Código inválido');
 
       setShowOtpModal(false);
-      alert('Cadastro realizado com sucesso! Redirecionando para o login...');
-      navigate('login');
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('dashboard');
     } catch (err) {
       setOtpError(err.message);
     } finally {

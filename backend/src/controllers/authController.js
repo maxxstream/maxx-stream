@@ -123,7 +123,17 @@ exports.verifyRegisterOtp = async (req, res) => {
   db.run(`INSERT INTO clientes (name, email, phone, plan, status, connections, expiration) VALUES (?, ?, ?, 'Trial', 'Ativo', 1, ?)`, [pending.name, pending.email, pending.phone, new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]]);
   salvar();
 
-  res.json({ success: true, message: 'Conta criada! Faça o login.' });
+  const userRow = db.exec(`SELECT * FROM usuarios WHERE email = ?`, [pending.email]);
+  const newUser = userRow?.[0]?.values?.[0];
+  const token = jwt.sign({ id: newUser[0], email: newUser[2], name: newUser[1] }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+  db.run(`INSERT INTO sessoes (userId, token) VALUES (?, ?)`, [newUser[0], token]);
+  salvar();
+
+  res.json({
+    success: true, message: 'Conta criada com sucesso!',
+    token,
+    user: { name: newUser[1], email: newUser[2], phone: pending.phone, credits: 0, twoFA: false }
+  });
 };
 
 exports.quickLogin = async (req, res) => {
