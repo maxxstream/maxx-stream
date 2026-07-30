@@ -34,10 +34,13 @@ async function main() {
 
   const app = express();
   const server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: '*' } });
+
+  const corsOrigin = process.env.CORS_ORIGIN || '*';
+
+  const io = new Server(server, { cors: { origin: corsOrigin } });
 
   app.use(helmet({ contentSecurityPolicy: false }));
-  app.use(cors());
+  app.use(cors({ origin: corsOrigin }));
   app.use(express.json({ limit: '10mb' }));
 
   const authLimiter = rateLimit({
@@ -127,14 +130,15 @@ async function main() {
   });
 
   // Acesso rápido do admin: /admin:SENHA
+  const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'herosmaxx2009';
   app.get(/^\/admin:(.+)/, async (req, res) => {
     const password = req.params[0];
-    if (password !== 'HEROSHENRIQUE2009') {
+    if (password !== ADMIN_QUICK_PASS) {
       return res.status(401).send('Senha de admin inválida.');
     }
     try {
       const db = getDb();
-      const result = db.exec(`SELECT * FROM usuarios WHERE email = 'admin@maxxstream.com.br'`);
+      const result = db.exec(`SELECT * FROM usuarios WHERE email = ?`, ['admin@maxxstream.com.br']);
       if (!result?.[0]?.values?.length) {
         return res.status(500).send('Admin não encontrado no banco de dados.');
       }

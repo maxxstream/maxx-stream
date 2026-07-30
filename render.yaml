@@ -21,5 +21,9 @@ services:
         sync: false
       - key: SEVENTV_PARTNER_ID
         sync: false
+      - key: ADMIN_QUICK_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        value: '*'
     healthCheckPath: /api/health
     autoDeploy: true

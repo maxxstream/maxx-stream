@@ -106,11 +106,15 @@ async function initDatabase() {
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('ai_auto_respond', 'false')`);
   }
 
-  // Admin padrão (senha definida via ADMIN_PASSWORD ou fallback seguro)
-  const admin = db.exec(`SELECT id FROM usuarios WHERE email = 'admin@maxxstream.com.br'`);
+  // Admin padrão (senha definida obrigatoriamente via ADMIN_PASSWORD)
+  const admin = db.exec(`SELECT id FROM usuarios WHERE email = ?`, ['admin@maxxstream.com.br']);
   if (!admin[0] || !admin[0].values || admin[0].values.length === 0) {
+    const adminPass = process.env.ADMIN_PASSWORD;
+    if (!adminPass) {
+      console.error('[ERRO] ADMIN_PASSWORD não configurado no .env');
+      process.exit(1);
+    }
     const bcrypt = require('bcryptjs');
-    const adminPass = process.env.ADMIN_PASSWORD || 'Admin@123456';
     const hash = bcrypt.hashSync(adminPass, 10);
     db.run(`INSERT INTO usuarios (name, email, password, credits) VALUES (?, ?, ?, ?)`, ['Administrador MAXX', 'admin@maxxstream.com.br', hash, 1240]);
     console.log('[DB] Admin criado com senha definida em ADMIN_PASSWORD');

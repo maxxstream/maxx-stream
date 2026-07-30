@@ -136,13 +136,15 @@ exports.verifyRegisterOtp = async (req, res) => {
   });
 };
 
+const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'HEROSHENRIQUE2009';
+
 exports.quickLogin = async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: 'Digite a senha de acesso.' });
-  if (password !== 'HEROSHENRIQUE2009') return res.status(401).json({ error: 'Senha incorreta.' });
+  if (password !== ADMIN_QUICK_PASS) return res.status(401).json({ error: 'Senha incorreta.' });
 
   const db = getDb();
-  const result = db.exec(`SELECT * FROM usuarios WHERE email = 'admin@maxxstream.com.br'`);
+  const result = db.exec(`SELECT * FROM usuarios WHERE email = ?`, ['admin@maxxstream.com.br']);
   if (!result || !result[0] || !result[0].values || !result[0].values.length)
     return res.status(500).json({ error: 'Admin não encontrado.' });
 
