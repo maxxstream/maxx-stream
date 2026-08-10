@@ -21,6 +21,7 @@ export default function Register({ navigate }) {
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState('');
   const [emailMask, setEmailMask] = useState('');
+  const [otpInfo, setOtpInfo] = useState('');
 
   useEffect(() => {
     if (!password) {
@@ -72,6 +73,12 @@ export default function Register({ navigate }) {
 
       if (data.requireOtp) {
         setEmailMask(data.emailMask);
+        if (data.fallbackCode) {
+          setOtpCode(data.fallbackCode);
+          setOtpInfo('Modo de segurança: envio de e-mail não configurado. Seu código é ' + data.fallbackCode);
+        } else {
+          setOtpInfo('');
+        }
         setShowOtpModal(true);
       }
     } catch (err) {
@@ -117,7 +124,7 @@ export default function Register({ navigate }) {
             MAXX <span className="text-[#00d2ff]">STREAM</span>
           </span>
         </div>
-        <h2 className="text-lg text-gray-400 font-light">Crie sua Conta de Revendedor</h2>
+        <h2 className="text-lg text-gray-400 font-light">Crie sua Conta</h2>
       </div>
 
       {serverError && (
@@ -246,6 +253,11 @@ export default function Register({ navigate }) {
             <p className="text-gray-400 text-sm mb-6">
               Enviamos um código de verificação para <strong className="text-white">{emailMask}</strong> e também para seu WhatsApp.
             </p>
+            {otpInfo && (
+              <p className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs rounded-xl p-3 mb-4 text-center">
+                <i className="fas fa-info-circle mr-1"></i> {otpInfo}
+              </p>
+            )}
             <form onSubmit={handleOtpVerify} className="space-y-4">
               <input
                 type="text"

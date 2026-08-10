@@ -1,5 +1,6 @@
-const { getDb, salvar } = require('../database');
+﻿const { getDb, salvar } = require('../database');
 const seventv = require('../services/seventvApi');
+const notif = require('../services/notificationService');
 
 const maskEmail = (email) => { const [u, d] = email.split('@'); return `${u.substring(0, 2)}***@${d}`; };
 const maskPhone = (phone) => `${phone.substring(0, 5)}***-${phone.substring(phone.length - 4)}`;
@@ -23,7 +24,7 @@ exports.getClients = (req, res) => {
 
 exports.getClientById = (req, res) => {
   const db = getDb();
-  const r = db.exec(`SELECT * FROM clientes WHERE id = ?`, { bind: [parseInt(req.params.id)] });
+  const r = db.exec(`SELECT * FROM clientes WHERE id = ?`, [parseInt(req.params.id)]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Cliente não encontrado.' });
   const cols = r[0].columns;
   const c = r[0].values[0];
@@ -54,11 +55,11 @@ exports.deleteClient = (req, res) => {
   res.json({ success: true, message: 'Cliente removido.' });
 };
 
-exports.notifyClient = (req, res) => {
+exports.notifyClient = async (req, res) => {
   const { id } = req.params;
   const { type, message } = req.body;
   const db = getDb();
-  const r = db.exec(`SELECT * FROM clientes WHERE id = ?`, { bind: [parseInt(id)] });
+  const r = db.exec(`SELECT * FROM clientes WHERE id = ?`, [parseInt(id)]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Cliente não encontrado.' });
 
   const c = r[0].values[0];
@@ -68,7 +69,19 @@ exports.notifyClient = (req, res) => {
   db.run(`INSERT INTO mensagens (clientId, type, to_addr, message) VALUES (?, ?, ?, ?)`, [c[0], type, to, msg]);
   salvar();
 
-  res.json({ success: true, message: `Notificação enviada via ${type} para ${c[1]}!` });
+  let enviado = false;
+  try {
+    if (type === 'whatsapp') {
+      await notif.sendWhatsApp(to, msg);
+    } else {
+      await notif.sendEmail(to, c[1], 'MAXX STREAM — Renovação de Plano', msg);
+    }
+    enviado = true;
+  } catch (e) {
+    console.error('[Notificar] Falha no envio real:', e.message);
+  }
+
+  res.json({ success: true, enviado, message: `Notificação ${enviado ? 'enviada' : 'registrada'} via ${type} para ${c[1]}!` });
 };
 
 exports.generateTest = async (req, res) => {
@@ -147,14 +160,14 @@ exports.getCRMConversas = (req, res) => {
   const { clientId } = req.query;
 
   if (clientId) {
-    const msgs = db.exec(`SELECT * FROM mensagens WHERE clientId = ? ORDER BY timestamp`, { bind: [parseInt(clientId)] });
+    const msgs = db.exec(`SELECT * FROM mensagens WHERE clientId = ? ORDER BY timestamp`, [parseInt(clientId)]);
     const mensagens = msgs.length ? msgs[0].values.map(m => ({ id: m[0], type: m[2], to: m[3], message: m[4], direction: m[5], timestamp: m[6] })) : [];
     return res.json({ success: true, mensagens });
   }
 
   const clientes = db.exec(`SELECT * FROM clientes ORDER BY name`);
   const conversas = clientes.length ? clientes[0].values.map(c => {
-    const last = db.exec(`SELECT type, message, timestamp FROM mensagens WHERE clientId = ? ORDER BY timestamp DESC LIMIT 1`, { bind: [c[0]] });
+    const last = db.exec(`SELECT type, message, timestamp FROM mensagens WHERE clientId = ? ORDER BY timestamp DESC LIMIT 1`, [c[0]]);
     return {
       id: c[0], name: c[1], email: maskEmail(c[2]), phone: maskPhone(c[3]), plan: c[4], status: c[5],
       ultimaMensagem: last.length && last[0].values.length ? { type: last[0].values[0][0], message: last[0].values[0][1], timestamp: last[0].values[0][2] } : null
@@ -164,18 +177,31 @@ exports.getCRMConversas = (req, res) => {
   res.json({ success: true, conversas });
 };
 
-exports.sendCRM = (req, res) => {
+exports.sendCRM = async (req, res) => {
   const { clientId, type, message } = req.body;
   if (!clientId || !type || !message) return res.status(400).json({ error: 'Campos obrigatórios' });
 
   const db = getDb();
-  const c = db.exec(`SELECT * FROM clientes WHERE id = ?`, { bind: [parseInt(clientId)] });
+  const c = db.exec(`SELECT * FROM clientes WHERE id = ?`, [parseInt(clientId)]);
   if (!c.length || !c[0].values.length) return res.status(404).json({ error: 'Cliente não encontrado' });
 
-  const to = type === 'whatsapp' ? c[0].values[0][3] : c[0].values[0][2];
+  const cRow = c[0].values[0];
+  const to = type === 'whatsapp' ? cRow[3] : cRow[2];
   db.run(`INSERT INTO mensagens (clientId, type, to_addr, message) VALUES (?, ?, ?, ?)`, [parseInt(clientId), type, to, message]);
   salvar();
 
+  let enviado = false;
+  try {
+    if (type === 'whatsapp') {
+      await notif.sendWhatsApp(to, message);
+    } else {
+      await notif.sendEmail(to, cRow[1], 'MAXX STREAM', message);
+    }
+    enviado = true;
+  } catch (e) {
+    console.error('[CRM] Falha no envio real:', e.message);
+  }
+
   const id = db.exec(`SELECT last_insert_rowid()`)[0].values[0][0];
-  res.json({ success: true, mensagem: { id, type, to, message, direction: 'enviada', timestamp: new Date().toISOString() } });
+  res.json({ success: true, enviado, mensagem: { id, type, to, message, direction: 'enviada', timestamp: new Date().toISOString() } });
 };

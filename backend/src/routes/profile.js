@@ -1,11 +1,11 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { getDb, salvar } = require('../database');
 
 router.get('/', (req, res) => {
   const db = getDb();
-  const r = db.exec(`SELECT id, name, email, credits, twoFA FROM usuarios WHERE email = ?`, { bind: [req.user.email] });
+  const r = db.exec(`SELECT id, name, email, credits, twoFA FROM usuarios WHERE email = ?`, [req.user.email]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Usuário não encontrado' });
   const row = r[0].values[0];
   res.json({ success: true, user: { id: row[0], name: row[1], email: row[2], credits: row[3], twoFA: !!row[4] } });
@@ -26,7 +26,7 @@ router.post('/change-password', (req, res) => {
   if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Preencha todos os campos' });
   if (newPassword.length < 4) return res.status(400).json({ error: 'A senha deve ter no mínimo 4 caracteres' });
   const db = getDb();
-  const r = db.exec(`SELECT password FROM usuarios WHERE email = ?`, { bind: [req.user.email] });
+  const r = db.exec(`SELECT password FROM usuarios WHERE email = ?`, [req.user.email]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Usuário não encontrado' });
   const valid = bcrypt.compareSync(currentPassword, r[0].values[0][0]);
   if (!valid) return res.status(401).json({ error: 'Senha atual incorreta' });

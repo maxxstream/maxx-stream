@@ -17,8 +17,12 @@ router.put('/', (req, res) => {
   const updates = req.body;
   if (!updates || typeof updates !== 'object') return res.status(400).json({ error: 'Envie um objeto com chave/valor' });
   Object.keys(updates).forEach(key => {
-    const existing = db.exec(`SELECT key FROM configuracoes WHERE key = ?`, { bind: [key] });
-    if (existing.length && existing[0].values.length) {
+    const stmt = db.prepare(`SELECT key FROM configuracoes WHERE key = ?`);
+    stmt.bind([key]);
+    let exists = false;
+    while (stmt.step()) { exists = true; }
+    stmt.free();
+    if (exists) {
       db.run(`UPDATE configuracoes SET value = ? WHERE key = ?`, [String(updates[key]), key]);
     } else {
       db.run(`INSERT INTO configuracoes (key, value) VALUES (?, ?)`, [key, String(updates[key])]);

@@ -13,6 +13,7 @@ export default function Login({ navigate }) {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [emailMask, setEmailMask] = useState('');
+  const [otpInfo, setOtpInfo] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,6 +34,12 @@ export default function Login({ navigate }) {
 
       if (data.requireOtp) {
         setEmailMask(data.emailMask);
+        if (data.fallbackCode) {
+          setOtpCode(data.fallbackCode);
+          setOtpInfo('Modo de segurança: envio de e-mail não configurado. Seu código é ' + data.fallbackCode);
+        } else {
+          setOtpInfo('');
+        }
         setShowOtp(true);
         setSuccess('');
       }
@@ -86,6 +93,12 @@ export default function Login({ navigate }) {
           Enviamos um código de verificação para <strong className="text-white">{emailMask}</strong> e também para seu WhatsApp.
         </p>
 
+        {otpInfo && (
+          <div className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 p-3 rounded-xl text-sm mb-6 text-center">
+            <i className="fas fa-info-circle mr-2"></i> {otpInfo}
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-xl text-sm mb-6 text-center animate-pulse">
             <i className="fas fa-exclamation-triangle mr-2"></i> {error}
@@ -135,7 +148,7 @@ export default function Login({ navigate }) {
             MAXX <span className="text-[#00d2ff]">STREAM</span>
           </span>
         </div>
-        <h2 className="text-lg text-gray-400 font-light">Área do Cliente & Revendedor</h2>
+        <h2 className="text-lg text-gray-400 font-light">Garanta sua diversão aqui com todos os canais</h2>
       </div>
 
       {error && (

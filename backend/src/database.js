@@ -98,8 +98,14 @@ async function initDatabase() {
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('seventv_api_key', '')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('seventv_partner_id', '')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('whatsapp_number', '')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('brevo_api_key', '')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('smtp_host', '')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('smtp_port', '587')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('smtp_secure', 'false')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('smtp_user', '')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('smtp_pass', '')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('email_from', '')`);
+    db.run(`INSERT INTO configuracoes (key, value) VALUES ('email_from_name', 'MAXX STREAM')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('site_name', 'MAXX STREAM')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('gemini_api_key', '')`);
     db.run(`INSERT INTO configuracoes (key, value) VALUES ('ai_training', '')`);

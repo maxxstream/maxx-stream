@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const { getDb, salvar } = require('../database');
 
@@ -34,7 +34,7 @@ const PLANO_CAMPOS = { name: 1, price: 1, days: 1, connections: 1, description: 
 
 router.put('/:id', (req, res) => {
   const db = getDb();
-  const r = db.exec(`SELECT * FROM planos WHERE id = ?`, { bind: [parseInt(req.params.id)] });
+  const r = db.exec(`SELECT * FROM planos WHERE id = ?`, [parseInt(req.params.id)]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Plano não encontrado' });
   const updates = [];
   const params = [];

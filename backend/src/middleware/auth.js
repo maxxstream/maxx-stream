@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'maxxstream_secret_fallback_change_me';
 
 module.exports = function autenticar(req, res, next) {
   const auth = req.headers.authorization;

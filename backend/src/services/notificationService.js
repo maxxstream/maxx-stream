@@ -1,22 +1,82 @@
 const https = require('https');
+const nodemailer = require('nodemailer');
+const { getDb } = require('../database');
 
-const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const EMAIL_FROM = process.env.EMAIL_FROM || 'naoresponda@maxxstream.com.br';
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'MAXX STREAM';
 
+function getSetting(key, fallback = '') {
+    try {
+        const db = getDb();
+        if (!db) return fallback;
+        const stmt = db.prepare(`SELECT value FROM configuracoes WHERE key = ?`);
+        stmt.bind([key]);
+        let v = null;
+        while (stmt.step()) { v = stmt.getAsObject().value; }
+        stmt.free();
+        return (v === null || v === undefined || v === '') ? fallback : v;
+    } catch (e) { /* banco ainda não inicializado */ }
+    return fallback;
+}
+
+exports.isEmailConfigured = () => {
+    const brevo = getSetting('brevo_api_key', process.env.BREVO_API_KEY || '');
+    if (brevo) return true;
+    const host = getSetting('smtp_host', process.env.SMTP_HOST || '');
+    const user = getSetting('smtp_user', process.env.SMTP_USER || '');
+    const pass = getSetting('smtp_pass', process.env.SMTP_PASS || '');
+    return !!(host && user && pass);
+};
+
 exports.sendEmailBrevo = (to, toName, subject, htmlContent) => {
     return new Promise((resolve, reject) => {
-        if (!BREVO_API_KEY) return reject(new Error('BREVO_API_KEY não configurada'));
-        const body = JSON.stringify({ sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM }, to: [{ email: to, name: toName || '' }], subject, htmlContent });
-        const req = https.request({ hostname: 'api.brevo.com', path: '/v3/smtp/email', method: 'POST', headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY, 'Content-Length': Buffer.byteLength(body) } }, (res) => {
-            let d = ''; res.on('data', c => d += c); res.on('end', () => { if (res.statusCode < 300) resolve(JSON.parse(d)); else reject(new Error('Brevo erro ' + res.statusCode)) });
+        const apiKey = getSetting('brevo_api_key', process.env.BREVO_API_KEY || '');
+        if (!apiKey) return reject(new Error('BREVO_API_KEY não configurada'));
+        const from = getSetting('email_from', EMAIL_FROM);
+        const fromName = getSetting('email_from_name', EMAIL_FROM_NAME);
+        const body = JSON.stringify({ sender: { name: fromName, email: from }, to: [{ email: to, name: toName || '' }], subject, htmlContent });
+        const req = https.request({ hostname: 'api.brevo.com', path: '/v3/smtp/email', method: 'POST', headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'Content-Length': Buffer.byteLength(body) } }, (res) => {
+            let d = ''; res.on('data', c => d += c); res.on('end', () => { if (res.statusCode < 300) resolve(JSON.parse(d)); else reject(new Error('Brevo erro ' + res.statusCode + (d ? ' - ' + d.slice(0, 200) : ''))) });
         }); req.on('error', reject); req.write(body); req.end();
     });
 };
 
+exports.sendEmailSmtp = (to, toName, subject, htmlContent) => {
+    return new Promise((resolve, reject) => {
+        const host = getSetting('smtp_host', process.env.SMTP_HOST || '');
+        if (!host) return reject(new Error('SMTP não configurado (smtp_host)'));
+        const port = parseInt(getSetting('smtp_port', process.env.SMTP_PORT || '587'), 10);
+        const secure = getSetting('smtp_secure', process.env.SMTP_SECURE || 'false') === 'true';
+        const user = getSetting('smtp_user', process.env.SMTP_USER || '');
+        const pass = getSetting('smtp_pass', process.env.SMTP_PASS || '');
+        if (!user || !pass) return reject(new Error('Credenciais SMTP ausentes (smtp_user/smtp_pass)'));
+        const from = getSetting('email_from', EMAIL_FROM);
+        const fromName = getSetting('email_from_name', EMAIL_FROM_NAME);
+
+        const transporter = nodemailer.createTransport({ host, port, secure, auth: { user, pass } });
+        transporter.sendMail({ from: `"${fromName}" <${from}>`, to, subject, html: htmlContent }, (err, info) => {
+            transporter.close();
+            if (err) reject(new Error('SMTP: ' + (err.message || 'erro')));
+            else resolve(info);
+        });
+    });
+};
+
+// Tenta Brevo primeiro e, se falhar, usa o SMTP configurado.
+exports.sendEmailFlex = async (to, toName, subject, htmlContent) => {
+    const erros = [];
+    try {
+        return await exports.sendEmailBrevo(to, toName, subject, htmlContent);
+    } catch (e) { erros.push(e.message); }
+    try {
+        return await exports.sendEmailSmtp(to, toName, subject, htmlContent);
+    } catch (e) { erros.push(e.message); }
+    throw new Error('E-mail indisponível (' + erros.join(' | ') + ')');
+};
+
 exports.sendEmail = async (to, toName, assunto, mensagem) => {
     const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#070712;border-radius:20px;padding:36px;color:#fff;border:1px solid #1a1a3e"><div style="text-align:center;margin-bottom:28px"><h1 style="color:#00d2ff;font-size:24px;margin:0;font-style:italic">▶ MAXX STREAM</h1><p style="color:#8b8fa8;font-size:13px;margin:4px 0 0">Comunicação automática</p></div><p style="color:#ccc;font-size:15px;margin-bottom:8px">Olá, <strong style="color:#fff">${toName || 'cliente'}</strong>!</p><div style="background:#0e0e22;border-radius:16px;padding:24px;margin-bottom:24px;color:#d1d5db;font-size:14px;line-height:1.6">${mensagem.replace(/\n/g, '<br>')}</div><p style="color:#8b8fa8;font-size:12px;text-align:center">Equipe <strong style="color:#00d2ff">MAXX STREAM</strong></p></div>`;
-    return this.sendEmailBrevo(to, toName, assunto, html);
+    return exports.sendEmailFlex(to, toName, assunto, html);
 };
 
 let waClient = null;
@@ -31,9 +91,12 @@ exports.initWhatsApp = async () => {
     try {
         const { Client, LocalAuth } = require('whatsapp-web.js');
         const qrcode = require('qrcode-terminal');
+        const puppeteerOpts = { args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] };
+        const chromiumPath = process.env.CHROMIUM_PATH;
+        if (chromiumPath) puppeteerOpts.executablePath = chromiumPath;
         const client = new Client({
             authStrategy: new LocalAuth({ dataPath: __dirname + '/.wwebjs_auth' }),
-            puppeteer: { args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] }
+            puppeteer: puppeteerOpts
         });
         client.on('qr', (qr) => { waReady = 'qr'; waQr = qr; console.log('\n📱 QR CODE WHATSAPP:'); qrcode.generate(qr, { small: true }); });
         client.on('ready', () => { waReady = true; console.log('✅ WhatsApp conectado!'); });

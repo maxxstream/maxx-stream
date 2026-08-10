@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const { getDb, salvar } = require('../database');
 
@@ -29,7 +29,7 @@ const AVISO_CAMPOS = { title: 1, content: 1, type: 1, active: 1 };
 
 router.put('/:id', (req, res) => {
   const db = getDb();
-  const r = db.exec(`SELECT * FROM avisos WHERE id = ?`, { bind: [parseInt(req.params.id)] });
+  const r = db.exec(`SELECT * FROM avisos WHERE id = ?`, [parseInt(req.params.id)]);
   if (!r.length || !r[0].values.length) return res.status(404).json({ error: 'Aviso não encontrado' });
   const updates = [];
   const params = [];

@@ -61,3 +61,38 @@ Recomendamos a **Railway**, **Render** ou **Heroku**:
 2.  Crie um novo projeto e aponte para a pasta `/backend/` do seu repositório.
 3.  Configure as variáveis de ambiente (as mesmas definidas no `.env`) diretamente no painel de controle do Railway/Render.
 4.  A API estará online e pronta para responder às requisições do frontend.
+
+---
+
+## 📧 4. Configurar o Envio do Código de Verificação (Obrigatório)
+
+O cadastro e o login de clientes dependem do envio do código por **e-mail ou WhatsApp**. Sem isso o cliente **não recebe o código** e não consegue entrar.
+
+Configure **uma** das opções de e-mail nas variáveis de ambiente do Railway/Render:
+
+### Opção A — Brevo (recomendada, mais fácil)
+1. Crie uma conta gratuita em [brevo.com](https://www.brevo.com).
+2. Acesse **SMTP & API → API Keys** e crie uma chave (`xkeysib-...`).
+3. Em **Sender Authentication** confirme o domínio/e-mail de envio.
+4. No painel da hospedagem, defina:
+   ```
+   BREVO_API_KEY=<sua chave>
+   EMAIL_FROM=suportemaxxstream@gmail.com
+   EMAIL_FROM_NAME=MAXX STREAM
+   ```
+
+### Opção B — SMTP (qualquer provedor de e-mail)
+Use um SMTP válido (Hostinger, Gmail com senha de app, Zoho, etc.). No painel da hospedagem, defina:
+   ```
+   SMTP_HOST=smtp.seuprovedor.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=seu@email.com
+   SMTP_PASS=sua-senha-smtp
+   EMAIL_FROM=seu@email.com
+   EMAIL_FROM_NAME=MAXX STREAM
+   ```
+
+> 💡 O sistema tenta **Brevo primeiro** e, se falhar, usa o **SMTP**. Você também pode configurar essas chaves pela API de configurações (`PUT /api/settings`) sem precisar fazer deploy novo.
+>
+> ⚠️ O WhatsApp (WhatsApp Web) **não funciona de forma confiável em servidores na nuvem** (exige escanear QR Code). Por isso, use o e-mail como forma principal de envio do código.

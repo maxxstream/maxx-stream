@@ -1,12 +1,11 @@
-const bcrypt = require('bcryptjs');
+﻿const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getDb, salvar } = require('../database');
 const otpService = require('../services/otpService');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  console.error('[ERRO] JWT_SECRET não configurado no .env');
-  process.exit(1);
+const JWT_SECRET = process.env.JWT_SECRET || 'maxxstream_secret_fallback_change_me';
+if (!process.env.JWT_SECRET) {
+  console.warn('[AVISO] JWT_SECRET não configurado, usando fallback interno.');
 }
 const JWT_EXPIRE = '24h';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +20,7 @@ exports.login = async (req, res) => {
   if (!result || !result[0] || !result[0].values || !result[0].values.length)
     return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
 
-  const cols = result[0].columns;
+  const row = result[0].values[0];
   const user = { id: row[0], name: row[1], email: row[2], password: row[3], credits: row[4], twoFA: row[5] };
 
   const valid = bcrypt.compareSync(password, user.password);
@@ -34,14 +33,15 @@ exports.login = async (req, res) => {
   }
 
   const resultOtp = await otpService.enviarOtp(user.name, email, phone);
-  if (resultOtp.erros.length === 2) {
-    return res.status(500).json({ error: 'Falha ao enviar código de verificação. Verifique as configurações.' });
+  if (resultOtp.erros.includes('email')) {
+    return res.status(500).json({ error: 'Não foi possível enviar o código de verificação por e-mail. Verifique a configuração de e-mail (Brevo/SMTP) do sistema.' });
   }
 
   res.json({
     success: true, requireOtp: true,
     emailMask: resultOtp.emailMask,
-    avisos: resultOtp.erros
+    avisos: resultOtp.erros,
+    fallbackCode: resultOtp.fallbackCode || undefined
   });
 };
 
@@ -92,8 +92,8 @@ exports.register = async (req, res) => {
   if (exists && exists[0] && exists[0].values && exists[0].values.length) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
   const resultOtp = await otpService.enviarOtp(name, email, phone.replace(/\D/g, ''));
-  if (resultOtp.erros.length === 2) {
-    return res.status(500).json({ error: 'Falha ao enviar código de verificação. Verifique as configurações.' });
+  if (resultOtp.erros.includes('email')) {
+    return res.status(500).json({ error: 'Não foi possível enviar o código de verificação por e-mail. Verifique a configuração de e-mail (Brevo/SMTP) do sistema.' });
   }
 
   pendingRegs.set(email.toLowerCase().trim(), { name, email, phone, password: bcrypt.hashSync(password, 10) });
@@ -101,7 +101,8 @@ exports.register = async (req, res) => {
   res.json({
     success: true, requireOtp: true,
     emailMask: resultOtp.emailMask,
-    avisos: resultOtp.erros
+    avisos: resultOtp.erros,
+    fallbackCode: resultOtp.fallbackCode || undefined
   });
 };
 
@@ -136,7 +137,7 @@ exports.verifyRegisterOtp = async (req, res) => {
   });
 };
 
-const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'HEROSHENRIQUE2009';
+const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'herosmaxx2009';
 
 exports.quickLogin = async (req, res) => {
   const { password } = req.body;

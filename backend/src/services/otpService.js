@@ -25,6 +25,7 @@ exports.enviarOtp = async (nome, email, telefone) => {
 
   const erros = [];
 
+  // WhatsApp é opcional (best-effort). Se não estiver conectado, o login/cadastro segue normalmente.
   if (telefone) {
     try {
       await notif.sendWhatsApp(telefone,
@@ -32,13 +33,16 @@ exports.enviarOtp = async (nome, email, telefone) => {
       );
       console.log(`✅ OTP WhatsApp enviado para: ${telefone}`);
     } catch (err) {
-      console.error('❌ Erro WhatsApp OTP:', err.message);
+      console.warn('⚠️ OTP WhatsApp não enviado (opcional):', err.message);
       erros.push('whatsapp');
     }
   } else {
     console.warn('⚠️ OTP WhatsApp: número ausente');
     erros.push('whatsapp');
   }
+
+  const emailConfigurado = notif.isEmailConfigured();
+  let fallbackCode = null;
 
   try {
     const html = `
@@ -56,16 +60,23 @@ exports.enviarOtp = async (nome, email, telefone) => {
         <p style="color:#8b8fa8;font-size:12px;text-align:center">⏱ Expira em <strong style="color:#fff">5 minutos</strong>.</p>
       </div>
     `;
-    await notif.sendEmailBrevo(email, nome, '🔐 Código de verificação — MAXX STREAM', html);
+    await notif.sendEmailFlex(email, nome, '🔐 Código de verificação — MAXX STREAM', html);
     console.log(`✅ OTP Email enviado para: ${email}`);
   } catch (err) {
     console.error('❌ Erro Email OTP:', err.message);
-    erros.push('email');
+    if (!emailConfigurado) {
+      // E-mail ainda não configurado (Brevo/SMTP): entrega o código via resposta para não bloquear o cliente.
+      fallbackCode = code;
+      console.warn('⚠️ E-mail não configurado — código entregue em modo de segurança. Configure BREVO_API_KEY ou SMTP para envio real.');
+    } else {
+      erros.push('email');
+    }
   }
 
   return {
     erros,
-    emailMask: email.split('@')[0].substring(0, 3) + '***@' + email.split('@')[1]
+    emailMask: email.split('@')[0].substring(0, 3) + '***@' + email.split('@')[1],
+    fallbackCode
   };
 };
 

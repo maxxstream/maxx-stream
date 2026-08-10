@@ -8,6 +8,7 @@ process.on('unhandledRejection', (err) => {
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const http = require('http');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -82,7 +83,16 @@ async function main() {
     res.json({ received: true });
   });
 
-  app.get('/admin/lista-clientes', autenticar, (req, res) => {
+  app.get('/admin/lista-clientes', (req, res) => {
+    // Aceita token via header OU via query (?token=...) para acesso direto pelo navegador
+    const token = (req.headers.authorization || '').replace('Bearer ', '') || req.query.token;
+    if (!token) return res.status(401).send('Acesso negado. Token ausente.');
+    try {
+      const jwt = require('jsonwebtoken');
+      jwt.verify(token, process.env.JWT_SECRET || 'maxxstream_secret_fallback_change_me');
+    } catch (e) {
+      return res.status(401).send('Acesso negado. Token inválido ou expirado.');
+    }
     const db = getDb();
     var clientes = db.exec('SELECT id, name, email, phone, plan, status, connections, expiration, createdAt FROM clientes ORDER BY id DESC');
     var clRows = (clientes.length && clientes[0].values.length) ? clientes[0].values : [];
@@ -113,21 +123,29 @@ async function main() {
   });
 
   const staticPath = path.resolve(__dirname, '..', '..', 'public');
-  const frontendDist = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
 
   // Arquivos públicos (login, cliente, qr, etc.)
   app.use(express.static(staticPath, { index: false }));
 
-  // Frontend React na raiz — login primeiro
-  app.use(express.static(frontendDist));
+  // Raiz do site = login do cliente (cadastro + verificação + login)
   app.get('/', (req, res) => {
-    res.sendFile(path.join(frontendDist, 'index.html'));
+    res.redirect('/login.html');
   });
 
   // Site institucional (landing page) disponível em /site
   app.get('/site', (req, res) => {
     res.sendFile(path.join(staticPath, 'index.html'));
   });
+
+  // Painel React (admin) disponível em /painel quando o build existir
+  const painelPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+  if (fs.existsSync(painelPath)) {
+    app.use('/painel', express.static(painelPath));
+    app.get(/^\/painel(?:\/.*)?$/, (req, res) => {
+      res.sendFile(path.join(painelPath, 'index.html'));
+    });
+    console.log('[WEB] Painel React em /painel');
+  }
 
   // Acesso rápido do admin: /admin:SENHA
   const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'herosmaxx2009';
@@ -145,7 +163,7 @@ async function main() {
       const row = result[0].values[0];
       const user = { id: row[0], name: row[1], email: row[2], credits: row[4], twoFA: row[5] };
       const jwt = require('jsonwebtoken');
-      const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET || 'maxxstream_secret_fallback_change_me', { expiresIn: '24h' });
       db.run(`INSERT INTO sessoes (userId, token) VALUES (?, ?)`, [user.id, token]);
       salvar();
       res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Redirecionando...</title></head><body><script>
