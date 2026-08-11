@@ -1,4 +1,4 @@
-﻿const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getDb, salvar } = require('../database');
 const otpService = require('../services/otpService');
@@ -33,10 +33,8 @@ exports.login = async (req, res) => {
   }
 
   const resultOtp = await otpService.enviarOtp(user.name, email, phone);
-  if (resultOtp.erros.includes('email')) {
-    return res.status(500).json({ error: 'Não foi possível enviar o código de verificação por e-mail. Verifique a configuração de e-mail (Brevo/SMTP) do sistema.' });
-  }
-
+  // E-mail é best-effort: se falhar, o código é entregue na resposta (fallbackCode)
+  // para NUNCA bloquear o acesso do usuário.
   res.json({
     success: true, requireOtp: true,
     emailMask: resultOtp.emailMask,
@@ -92,10 +90,7 @@ exports.register = async (req, res) => {
   if (exists && exists[0] && exists[0].values && exists[0].values.length) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
   const resultOtp = await otpService.enviarOtp(name, email, phone.replace(/\D/g, ''));
-  if (resultOtp.erros.includes('email')) {
-    return res.status(500).json({ error: 'Não foi possível enviar o código de verificação por e-mail. Verifique a configuração de e-mail (Brevo/SMTP) do sistema.' });
-  }
-
+  // Best-effort: se email falhar, entrega o código na tela via fallbackCode
   pendingRegs.set(email.toLowerCase().trim(), { name, email, phone, password: bcrypt.hashSync(password, 10) });
 
   res.json({
@@ -138,6 +133,56 @@ exports.verifyRegisterOtp = async (req, res) => {
 };
 
 const ADMIN_QUICK_PASS = process.env.ADMIN_QUICK_PASSWORD || 'herosmaxx2009';
+
+// ── Recuperação de senha (esqueci minha senha) ──
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Digite seu e-mail.' });
+  if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'E-mail inválido.' });
+
+  const db = getDb();
+  const result = db.exec(`SELECT * FROM usuarios WHERE email = ?`, [email]);
+  if (!result || !result[0] || !result[0].values || !result[0].values.length)
+    return res.status(404).json({ error: 'E-mail não cadastrado. Crie sua conta primeiro.' });
+
+  const row = result[0].values[0];
+  const user = { name: row[1], email: row[2] };
+
+  const clienteResult = db.exec(`SELECT phone FROM clientes WHERE email = ?`, [email]);
+  let phone = '';
+  if (clienteResult && clienteResult[0] && clienteResult[0].values && clienteResult[0].values.length) {
+    phone = clienteResult[0].values[0][0] || '';
+  }
+
+  const resultOtp = await otpService.enviarOtp(user.name, email, phone);
+  // Best-effort: se email falhar, entrega o código na tela via fallbackCode
+  res.json({
+    success: true, requireOtp: true,
+    emailMask: resultOtp.emailMask,
+    avisos: resultOtp.erros,
+    fallbackCode: resultOtp.fallbackCode || undefined
+  });
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, codigo, newPassword } = req.body;
+  if (!email || !codigo || !newPassword) return res.status(400).json({ error: 'Preencha todos os campos.' });
+  if (newPassword.length < 6) return res.status(400).json({ error: 'A nova senha deve ter no mínimo 6 caracteres.' });
+
+  const verificacao = otpService.verificarOtp(email, codigo);
+  if (!verificacao.ok) return res.status(401).json({ error: verificacao.erro });
+
+  const db = getDb();
+  const result = db.exec(`SELECT id FROM usuarios WHERE email = ?`, [email]);
+  if (!result || !result[0] || !result[0].values || !result[0].values.length)
+    return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+  const hash = bcrypt.hashSync(newPassword, 10);
+  db.run(`UPDATE usuarios SET password = ? WHERE email = ?`, [hash, email]);
+  salvar();
+
+  res.json({ success: true, message: 'Senha redefinida! Faça o login com sua nova senha.' });
+};
 
 exports.quickLogin = async (req, res) => {
   const { password } = req.body;

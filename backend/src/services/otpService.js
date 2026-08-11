@@ -41,7 +41,6 @@ exports.enviarOtp = async (nome, email, telefone) => {
     erros.push('whatsapp');
   }
 
-  const emailConfigurado = notif.isEmailConfigured();
   let fallbackCode = null;
 
   try {
@@ -64,13 +63,10 @@ exports.enviarOtp = async (nome, email, telefone) => {
     console.log(`✅ OTP Email enviado para: ${email}`);
   } catch (err) {
     console.error('❌ Erro Email OTP:', err.message);
-    if (!emailConfigurado) {
-      // E-mail ainda não configurado (Brevo/SMTP): entrega o código via resposta para não bloquear o cliente.
-      fallbackCode = code;
-      console.warn('⚠️ E-mail não configurado — código entregue em modo de segurança. Configure BREVO_API_KEY ou SMTP para envio real.');
-    } else {
-      erros.push('email');
-    }
+    // E-mail é best-effort (como o WhatsApp): se falhar (sem config ou erro da operadora),
+    // entrega o código na resposta para NUNCA bloquear o cliente.
+    fallbackCode = code;
+    console.warn('⚠️ E-mail indisponível — código entregue em modo de segurança (na tela). Revise BREVO_API_KEY/SMTP para envio real.');
   }
 
   return {
@@ -80,7 +76,7 @@ exports.enviarOtp = async (nome, email, telefone) => {
   };
 };
 
-exports.verificarOtp = (email, codigo) => {
+exports.verificarOtp = (email, codigo, manter = false) => {
   const key = email.toLowerCase().trim();
   const record = otpStore.get(key);
 
@@ -97,6 +93,7 @@ exports.verificarOtp = (email, codigo) => {
     return { ok: false, erro: 'Código incorreto. Verifique e tente novamente.' };
   }
 
-  otpStore.delete(key);
+  // "manter = true" valida sem consumir (usado no reset de senha, que valida 2x)
+  if (!manter) otpStore.delete(key);
   return { ok: true };
 };

@@ -3,608 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAXX STREAM — Entrar</title>
+    <title>MAXX STREAM — Área do Cliente | TV, Cinema e Esportes por menos de R$ 1/dia</title>
+    <meta name="description" content="Acesse sua conta MAXX STREAM. Mais de 30.000 canais, filmes e séries em 4K. Teste grátis de 6 horas. Suporte 24h.">
     <script>if (location.protocol === 'file:') location.replace('http://localhost:5000/login.html');</script>
-    <meta name="description" content="Faça login no painel MAXX STREAM">
     <link rel="icon" href="logo.jpg" type="image/jpeg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root{
+            --cyan:#00d2ff;
+            --blue:#007bff;
+            --green:#22c55e;
+            --orange:#ff6a00;
+            --bg:#050508;
+            --card:rgba(12,14,26,0.78);
+            --line:rgba(255,255,255,0.07);
+            --txt-dim:rgba(255,255,255,0.42);
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #06060e;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-            position: relative;
-        }
+        /* ─────────── Fundo animado ─────────── */
+        .bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,210,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,0.03) 1px,transparent 1px);background-size:60px 60px;z-index:0;animation:gridMove 8s linear infinite}
+        .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+        .orb-1{width:460px;height:460px;background:radial-gradient(circle,rgba(0,210,255,0.14),transparent);top:-12%;right:-6%;animation:orbFloat 9s ease-in-out infinite}
+        .orb-2{width:380px;height:380px;background:radial-gradient(circle,rgba(120,60,255,0.13),transparent);bottom:-10%;left:-6%;animation:orbFloat 11s ease-in-out infinite reverse}
+        .orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(0,200,255,0.08),transparent);top:40%;right:15%;animation:orbFloat 13s ease-in-out infinite}
+        @keyframes orbf{from{box-shadow:0 0 0 0 rgba(0,210,255,0.35)}to{box-shadow:0 0 0 22px rgba(0,210,255,0)}}
+        @keyframes gridMove{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}
+        @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.05)}50%{transform:translate(-12px,22px) scale(0.95)}75%{transform:translate(18px,12px) scale(1.02)}}
+        .stars{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+        .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:starTwinkle var(--dur) ease-in-out infinite}
+        @keyframes starTwinkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:0.8;transform:scale(1.2)}}
 
-        /* ── Animated Background Grid ── */
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(0,210,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,210,255,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: 0;
-            animation: gridMove 6s linear infinite;
-        }
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
-        }
+        .shimmer-text{background:linear-gradient(90deg,#fff,#00d2ff 40%,#fff 80%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmerText 4s linear infinite}
+        @keyframes shimmerText{to{background-position:200% center}}
 
-        /* ── Floating Orbs ── */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            pointer-events: none;
-            z-index: 0;
-            animation: orbFloat 8s ease-in-out infinite;
-        }
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(0,210,255,0.12), transparent);
-            top: -10%;
-            right: -5%;
-            animation-delay: 0s;
-        }
-        .orb-2 {
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(100,50,255,0.1), transparent);
-            bottom: -10%;
-            left: -5%;
-            animation-delay: -3s;
-        }
-        .orb-3 {
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(0,200,255,0.08), transparent);
-            bottom: 30%;
-            right: 20%;
-            animation-delay: -5s;
-        }
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -20px) scale(1.05); }
-            50% { transform: translate(-10px, 20px) scale(0.95); }
-            75% { transform: translate(20px, 10px) scale(1.02); }
-        }
+        /* ─────────── Barra superior (urgência) ─────────── */
+        .topbar{position:relative;z-index:20;background:linear-gradient(90deg,#7a1c00,#ff6a00 50%,#7a1c00);background-size:200% auto;animation:topbarShift 4s linear infinite;color:#fff;text-align:center;padding:9px 14px;font-size:0.78rem;font-weight:700;letter-spacing:0.4px;text-transform:uppercase}
+        @keyframes topbarShift{to{background-position:200% center}}
+        .topbar b{color:#ffe08a}
+        .topbar .off-limite{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+        .topbar .pill{background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.35);border-radius:99px;padding:2px 10px;font-family:ui-monospace,monospace;font-size:0.76rem;letter-spacing:1px}
 
-        /* ── Stars / Particles ── */
-        .stars {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #fff;
-            border-radius: 50%;
-            animation: starTwinkle var(--dur) ease-in-out infinite;
-            opacity: 0;
-        }
-        @keyframes starTwinkle {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 0.8; transform: scale(1.2); }
-        }
+        /* ─────────── Navegação ─────────── */
+        .nav{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,48px);border-bottom:1px solid var(--line);background:rgba(8,8,16,0.55);backdrop-filter:blur(18px)}
+        .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+        .brand .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(0,210,255,0.2),rgba(0,123,255,0.06));border:1px solid rgba(0,210,255,0.28);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:1.05rem;box-shadow:0 0 18px rgba(0,210,255,0.25)}
+        .brand h1{font-size:1.05rem;font-weight:800;letter-spacing:-0.3px;text-transform:uppercase}
+        .brand h1 span{color:var(--cyan)}
+        .brand small{display:block;font-size:0.62rem;color:var(--txt-dim);font-weight:500;letter-spacing:1.6px;text-transform:uppercase}
+        .nav-cta{display:flex;align-items:center;gap:10px}
+        .nav-cta .exit-link{color:var(--txt-dim);font-size:0.8rem;text-decoration:none;font-weight:600;transition:color .3s}
+        .nav-cta .exit-link:hover{color:#fff}
 
-        /* ── Card ── */
-        .card {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 410px;
-            margin: 20px;
-            background: rgba(10, 10, 26, 0.7);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 32px;
-            padding: 44px 36px;
-            box-shadow:
-                0 40px 80px rgba(0,0,0,0.6),
-                inset 0 1px 0 rgba(255,255,255,0.05);
-            animation: cardEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transform-origin: center;
-        }
-        @keyframes cardEnter {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
+        /* ─────────── Layout geral ─────────── */
+        .layout{position:relative;z-index:10;max-width:1160px;margin:0 auto;padding:clamp(28px,5vh,64px) clamp(16px,4vw,40px);display:grid;grid-template-columns:1fr;gap:48px;align-items:center}
+        @media(min-width:1024px){.layout{grid-template-columns:1.08fr 0.92fr;gap:64px}}
 
-        .card::before {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: 32px;
-            background: linear-gradient(135deg, rgba(0,210,255,0.15), transparent 40%, transparent 60%, rgba(0,210,255,0.05));
-            z-index: -1;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            -webkit-mask-composite: xor;
-            padding: 1px;
-        }
+        /* ─────────── Pitch (conversão) ─────────── */
+        .pitch{order:2}
+        .pitch .eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(0,210,255,0.08);border:1px solid rgba(0,210,255,0.25);color:var(--cyan);font-size:0.7rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;padding:7px 14px;border-radius:99px;margin-bottom:22px}
+        .pitch h2{font-size:clamp(1.8rem,3.4vw,2.7rem);font-weight:900;line-height:1.12;letter-spacing:-1px;margin-bottom:16px}
+        .pitch h2 .grad{background:linear-gradient(90deg,#00d2ff,#7c6bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .pitch .sub{color:var(--txt-dim);font-size:1.02rem;line-height:1.65;margin-bottom:30px;max-width:520px}
+        .feats{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:30px}
+        @media(min-width:540px){.feats{grid-template-columns:1fr 1fr}}
+        .feat{display:flex;align-items:flex-start;gap:13px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;padding:14px 16px;transition:border-color .3s,transform .3s}
+        .feat:hover{border-color:rgba(0,210,255,0.35);transform:translateY(-2px)}
+        .feat .ico{width:38px;height:38px;flex-shrink:0;border-radius:11px;background:rgba(0,210,255,0.1);border:1px solid rgba(0,210,255,0.22);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-size:0.95rem}
+        .feat b{display:block;font-size:0.87rem;margin-bottom:2px}
+        .feat span{display:block;font-size:0.74rem;color:var(--txt-dim);line-height:1.45}
 
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.2), transparent);
-            border-radius: 32px 32px 0 0;
-        }
+        .mini-card{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(255,106,0,0.09),rgba(255,106,0,0.02));border:1px solid rgba(255,106,0,0.35);border-radius:18px;padding:18px;margin-bottom:26px}
+        .mini-card .price{flex-shrink:0;text-align:center}
+        .mini-card .price .cut{color:rgba(255,255,255,0.45);font-size:0.72rem;text-decoration:line-through}
+        .mini-card .price .now{font-size:1.5rem;font-weight:900;color:#ff8a2a;line-height:1}
+        .mini-card .price .per{font-size:0.62rem;color:rgba(255,255,255,0.4)}
+        .mini-card .info{flex:1}
+        .mini-card .info b{display:block;font-size:0.88rem;text-transform:uppercase;letter-spacing:0.4px}
+        .mini-card .info span{display:block;font-size:0.73rem;color:var(--txt-dim);margin-top:3px;line-height:1.5}
+        .mini-card a{flex-shrink:0;background:var(--orange);color:#fff;font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;padding:11px 16px;border-radius:12px;text-decoration:none;transition:filter .3s,transform .3s}
+        .mini-card a:hover{filter:brightness(1.12);transform:translateY(-2px)}
 
-        /* ── Logo ── */
-        .logo-wrap {
-            text-align: center;
-            margin-bottom: 32px;
-            position: relative;
-        }
-        .logo-wrap .logo-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(0,210,255,0.12), rgba(0,210,255,0.04));
-            border: 1px solid rgba(0,210,255,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 14px;
-            font-size: 1.4rem;
-            color: #00d2ff;
-            animation: logoPulse 3s ease-in-out infinite;
-        }
-        @keyframes logoPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(0,210,255,0.1); }
-            50% { box-shadow: 0 0 0 12px rgba(0,210,255,0); }
-        }
-        .logo-wrap h1 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 60%, rgba(255,255,255,0.6));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo-wrap p {
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.25);
-            margin-top: 4px;
-            font-weight: 400;
-        }
+        .trust-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+        .trust{display:inline-flex;align-items:center;gap:8px;font-size:0.7rem;color:var(--txt-dim);background:rgba(255,255,255,0.03);border:1px solid var(--line);padding:8px 13px;border-radius:99px;font-weight:600}
+        .trust i{color:var(--cyan)}
+        .trust .wa{cursor:pointer;color:var(--txt-dim);text-decoration:none}
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:30px}
+        @media(max-width:520px){.stats{grid-template-columns:1fr 1fr}}
+        .stat{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+        .stat .v{font-size:1.25rem;font-weight:900;color:var(--cyan);line-height:1}
+        .stat .l{font-size:0.6rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
 
-        /* ── Tabs ── */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 28px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 14px;
-            padding: 4px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 11px 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.78rem;
-            cursor: pointer;
-            border-radius: 11px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            background: transparent;
-            color: rgba(255,255,255,0.25);
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            position: relative;
-        }
-        .tab-btn i {
-            margin-right: 5px;
-            font-size: 0.7rem;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, rgba(0,210,255,0.12), rgba(0,210,255,0.05));
-            color: #00d2ff;
-            box-shadow: 0 4px 16px rgba(0,210,255,0.08);
-        }
-        .tab-btn:not(.active):hover {
-            color: rgba(255,255,255,0.5);
-        }
+        .depos{margin-top:28px}
+        .depos .tit{font-size:0.68rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt-dim);margin-bottom:14px}
+        .depo{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+        .depo .av{width:38px;height:38px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,#00d2ff,#007bff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem}
+        .depo p{font-size:0.8rem;color:rgba(255,255,255,0.66);line-height:1.55}
+        .depo .nm{font-size:0.67rem;color:var(--txt-dim);margin-top:4px}
+        .depo .stars{color:#fbbf24;font-size:0.65rem;margin-bottom:3px;letter-spacing:2px}
 
-        /* ── Form ── */
-        .form-group {
-            margin-bottom: 18px;
-            position: relative;
-        }
-        .form-group label {
-            font-size: 0.68rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.25);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 7px;
-            display: block;
-            transition: color 0.3s;
-        }
-        .form-group:focus-within label {
-            color: rgba(0,210,255,0.6);
-        }
-        .input-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .input-wrap .input-icon {
-            position: absolute;
-            left: 14px;
-            color: rgba(255,255,255,0.12);
-            font-size: 0.9rem;
-            pointer-events: none;
-            transition: all 0.4s;
-        }
-        .input-wrap:focus-within .input-icon {
-            color: #00d2ff;
-            transform: scale(1.05);
-        }
-        .input-wrap input {
-            width: 100%;
-            padding: 14px 40px 14px 40px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 14px;
-            color: #fff;
-            font-size: 0.88rem;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .input-wrap input:focus {
-            border-color: rgba(0,210,255,0.35);
-            background: rgba(255,255,255,0.06);
-            box-shadow: 0 0 0 4px rgba(0,210,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-        .input-wrap input::placeholder {
-            color: rgba(255,255,255,0.12);
-            font-weight: 400;
-            font-size: 0.82rem;
-        }
-        .input-wrap .toggle-pw {
-            position: absolute;
-            right: 12px;
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.15);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 6px;
-            transition: all 0.3s;
-            border-radius: 8px;
-        }
-        .input-wrap .toggle-pw:hover {
-            color: rgba(255,255,255,0.5);
-            background: rgba(255,255,255,0.04);
-        }
+        /* ─────────── Card de login ─────────── */
+        .auth-area{order:1}
+        @media(min-width:1024px){.auth-area{order:2}}
+        .card{position:relative;background:var(--card);backdrop-filter:blur(34px);-webkit-backdrop-filter:blur(34px);border:1px solid rgba(255,255,255,0.08);border-radius:28px;padding:34px 30px;box-shadow:0 40px 90px rgba(0,0,0,0.6);animation:cardEnter .8s cubic-bezier(.16,1,.3,1) forwards}
+        @keyframes cardEnter{from{opacity:0;transform:translateY(36px) scale(0.96)}to{opacity:1;transform:none}}
+        .card::before{content:'';position:absolute;inset:-1px;border-radius:28px;background:linear-gradient(135deg,rgba(0,210,255,0.22),transparent 38%,transparent 62%,rgba(0,210,255,0.06));z-index:-1;padding:1px;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude}
+        .card .head{text-align:center;margin-bottom:26px}
+        .card .head h3{font-size:1.3rem;font-weight:800;letter-spacing:-0.4px}
+        .card .head p{color:var(--txt-dim);font-size:0.78rem;margin-top:4px}
 
-        /* ── Focus ring underline ── */
-        .input-wrap::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00d2ff, #007bff);
-            border-radius: 0 0 14px 14px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(-50%);
-        }
-        .input-wrap:focus-within::after {
-            width: 100%;
-        }
+        .tabs{display:flex;gap:4px;margin-bottom:26px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:4px}
+        .tab-btn{flex:1;padding:11px 6px;text-align:center;font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;border-radius:11px;border:none;background:transparent;color:rgba(255,255,255,0.35);transition:all .35s}
+        .tab-btn i{margin-right:5px;font-size:0.68rem}
+        .tab-btn.active{background:linear-gradient(135deg,rgba(0,210,255,0.14),rgba(0,123,255,0.08));color:var(--cyan);box-shadow:0 4px 16px rgba(0,210,255,0.1)}
+        .tab-btn:not(.active):hover{color:rgba(255,255,255,0.6)}
 
-        /* ── Options Row ── */
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            margin: 6px 0 22px;
-        }
-        .form-options label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255,255,255,0.25);
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .form-options label:hover { color: rgba(255,255,255,0.4); }
-        .form-options input[type="checkbox"] {
-            accent-color: #00d2ff;
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .form-options a {
-            color: rgba(0,210,255,0.6);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            font-size: 0.75rem;
-            position: relative;
-        }
-        .form-options a::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: #00d2ff;
-            transition: width 0.3s;
-        }
-        .form-options a:hover { color: #00d2ff; }
-        .form-options a:hover::after { width: 100%; }
+        .form-group{margin-bottom:16px;position:relative}
+        .form-group label{font-size:0.66rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:7px;transition:color .3s}
+        .input-wrap{position:relative;display:flex;align-items:center}
+        .input-wrap .input-icon{position:absolute;left:14px;color:rgba(255,255,255,0.2);font-size:0.85rem;transition:color .3s}
+        .input-wrap:focus-within .input-icon{color:var(--cyan)}
+        .input-wrap input{width:100%;padding:14px 42px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);border-radius:13px;color:#fff;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;transition:all .35s}
+        .input-wrap input:focus{border-color:rgba(0,210,255,0.45);background:rgba(255,255,255,0.06);box-shadow:0 0 0 4px rgba(0,210,255,0.06)}
+        .input-wrap input::placeholder{color:rgba(255,255,255,0.18)}
+        .toggle-pw{position:absolute;right:12px;background:none;border:none;color:rgba(255,255,255,0.25);cursor:pointer;font-size:0.85rem;padding:6px;transition:color .3s}
+        .toggle-pw:hover{color:#fff}
 
-        /* ── Button ── */
-        .btn-primary {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: 0.3px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #00d2ff, #0099cc);
-            color: #000;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(0,210,255,0.3);
-        }
-        .btn-primary:active {
-            transform: scale(0.97);
-        }
-        .btn-primary i {
-            transition: transform 0.3s;
-        }
-        .btn-primary:hover i {
-            transform: translateX(3px);
-        }
-        /* Shimmer */
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-            transform: skewX(-20deg);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-            0% { left: -100%; }
-            60% { left: 150%; }
-            100% { left: 150%; }
-        }
+        .form-options{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:0.72rem;margin:2px 0 18px}
+        .form-options label{display:flex;align-items:center;gap:7px;color:var(--txt-dim);cursor:pointer}
+        .form-options input[type="checkbox"]{accent-color:var(--cyan);width:15px;height:15px;cursor:pointer}
+        .form-options a{color:rgba(0,210,255,0.75);text-decoration:none;font-weight:600;transition:color .3s}
+        .form-options a:hover{color:var(--cyan)}
 
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin: 22px 0;
-        }
-        .divider span {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-        }
-        .divider small {
-            color: rgba(255,255,255,0.12);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 500;
-        }
+        .btn-primary{width:100%;padding:15px;border:none;border-radius:14px;font-size:0.85rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;letter-spacing:0.4px;position:relative;overflow:hidden;background:linear-gradient(135deg,#00d2ff,#0099cc);color:#001014;transition:transform .3s,box-shadow .3s;text-transform:uppercase}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,210,255,0.32)}
+        .btn-primary:active{transform:scale(0.97)}
+        .btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-20deg);animation:shimmer 3s ease-in-out infinite}
+        @keyframes shimmer{0%{left:-100%}60%,100%{left:150%}}
 
-        /* ── Social ── */
-        .social-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .social-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 13px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.02);
-            color: rgba(255,255,255,0.4);
-            font-size: 0.78rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            text-decoration: none;
-        }
-        .social-btn:hover {
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.7);
-            transform: translateY(-1px);
-        }
-        .social-btn.wa { border-color: rgba(37,211,102,0.12); color: #25d366; }
-        .social-btn.wa:hover { background: rgba(37,211,102,0.06); border-color: rgba(37,211,102,0.2); }
+        .divider{display:flex;align-items:center;gap:14px;margin:22px 0}
+        .divider span{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)}
+        .divider small{color:rgba(255,255,255,0.18);font-size:0.62rem;text-transform:uppercase;letter-spacing:1.6px;font-weight:600}
 
-        /* ── Benefits ── */
-        .benefits {
-            z-index: 1;
-            max-width: 900px;
-            margin: 40px auto 60px;
-            padding: 0 20px;
-            text-align: center;
-        }
-        .benefits h2 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff 60%, rgba(255,255,255,0.4));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .benefits p.sub {
-            color: rgba(255,255,255,0.2);
-            font-size: 0.85rem;
-            margin-bottom: 36px;
-        }
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-        .benefit-card {
-            background: rgba(10,10,26,0.5);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 20px;
-            padding: 28px 20px;
-            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-            text-align: center;
-        }
-        .benefit-card:hover {
-            border-color: rgba(0,210,255,0.1);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        .benefit-card .icon {
-            font-size: 2rem;
-            margin-bottom: 14px;
-            color: #00d2ff;
-        }
-        .benefit-card h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .benefit-card p {
-            color: rgba(255,255,255,0.2);
-            font-size: 0.75rem;
-            line-height: 1.5;
-        }
+        .social-buttons{display:flex;gap:8px}
+        .social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;padding:13px;border-radius:13px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.55);font-size:0.75rem;font-weight:700;cursor:pointer;transition:all .35s;font-family:'Inter',sans-serif;text-decoration:none;text-transform:uppercase;letter-spacing:0.3px}
+        .social-btn:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.9);transform:translateY(-1px)}
+        .social-btn.wa{border-color:rgba(37,211,102,0.18);color:#25d366}
+        .social-btn.wa:hover{background:rgba(37,211,102,0.08);border-color:rgba(37,211,102,0.35)}
 
-        /* ── Error ── */
-        .error-msg {
-            display: none;
-            margin-top: 14px;
-            padding: 11px 14px;
-            border-radius: 12px;
-            background: rgba(239,68,68,0.06);
-            border: 1px solid rgba(239,68,68,0.1);
-            color: #ef4444;
-            font-size: 0.75rem;
-            text-align: center;
-            font-weight: 500;
-            animation: shake 0.4s ease;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-4px); }
-            40% { transform: translateX(4px); }
-            60% { transform: translateX(-3px); }
-            80% { transform: translateX(3px); }
-        }
+        .pulse-ring{animation:pulseRing 2s infinite}
+        @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(37,211,102,0.45)}70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
 
-        /* ── Loading ── */
-        .loading {
-            display: none;
-            margin-top: 14px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #00d2ff;
-            font-weight: 500;
-        }
-        .loading i {
-            margin-right: 6px;
-        }
+        /* ─────────── Erro / loading ─────────── */
+        .error-msg{display:none;margin-top:14px;padding:11px 14px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.75rem;text-align:center;font-weight:600;animation:shake .4s ease}
+        .error-msg.ok{display:none;background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:#22c55e}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+        .loading{display:none;margin-top:14px;text-align:center;font-size:0.78rem;color:var(--cyan);font-weight:600}
+        .loading i{margin-right:6px}
 
-        /* ── Transition entre forms ── */
-        .form-container {
-            position: relative;
-            min-height: 280px;
-        }
-        .form-container form {
-            transition: opacity 0.35s ease, transform 0.35s ease;
-        }
-        .form-container form.hidden-form {
-            display: none;
-        }
+        /* ─────────── Modais ─────────── */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(14px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+        .modal-overlay.open{display:flex}
+        .modal-box{background:linear-gradient(180deg,#0f1022,#0a0b18);border:1px solid rgba(255,255,255,0.09);border-radius:26px;padding:34px;max-width:390px;width:100%;text-align:center;animation:modalIn .35s cubic-bezier(.16,1,.3,1)}
+        @keyframes modalIn{from{opacity:0;transform:scale(0.94) translateY(10px)}to{opacity:1;transform:none}}
+        .modal-box h3{font-size:1.15rem;font-weight:800;margin:10px 0 4px}
+        .modal-box .muted{color:#8b8fa8;font-size:0.78rem;line-height:1.6;margin-bottom:18px}
+        .fallback-notice{display:none;background:rgba(0,210,255,0.07);border:1px solid rgba(0,210,255,0.3);border-radius:13px;padding:13px;margin-bottom:14px;font-size:0.72rem;color:#9adcff;line-height:1.6;text-align:left}
+        .fallback-notice .code{font-size:1.45rem;font-weight:900;letter-spacing:0.3em;color:var(--cyan);font-family:ui-monospace,monospace;text-align:center;margin-top:8px}
+        .otp-input{width:100%;padding:16px;font-size:1.8rem;text-align:center;letter-spacing:0.5em;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;color:#fff;outline:none;font-family:ui-monospace,monospace;margin-bottom:15px}
+        .otp-input:focus{border-color:rgba(0,210,255,0.5);box-shadow:0 0 0 4px rgba(0,210,255,0.08)}
+        .btn-sec{width:100%;padding:12px;background:rgba(255,255,255,0.04);color:#fff;border:none;border-radius:13px;cursor:pointer;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;transition:background .3s;font-family:'Inter',sans-serif}
+        .btn-sec:hover{background:rgba(255,255,255,0.08)}
 
-        /* ── Responsive ── */
-        @media (max-width: 480px) {
-            .card { padding: 24px 16px; border-radius: 20px; margin: 8px; max-width: 100%; }
-            .orb-1 { width: 200px; height: 200px; }
-            .orb-2 { width: 150px; height: 150px; }
-            .orb-3 { display: none; }
-            .logo-wrap h1 { font-size: 1.1rem; }
-            .tab-btn { font-size: 0.7rem; padding: 10px 6px; }
-            .tab-btn i { margin-right: 3px; }
-            .input-wrap input { padding: 12px 36px 12px 36px; font-size: 0.82rem; }
-            .benefits-grid { grid-template-columns: 1fr; gap: 12px; }
-            .benefit-card { padding: 20px 16px; }
-            .benefits h2 { font-size: 1.3rem; }
-            #otp-modal > div { padding: 24px !important; margin: 12px !important; }
-            #otp-input { font-size: 1.4rem !important; padding: 12px !important; }
+        /* ─────────── CTA final + rodapé ─────────── */
+        .final-cta{position:relative;z-index:10;max-width:1160px;margin:0 auto 60px;padding:0 clamp(16px,4vw,40px)}
+        .final-cta .box{background:linear-gradient(135deg,rgba(0,210,255,0.08),rgba(123,97,255,0.06));border:1px solid rgba(0,210,255,0.25);border-radius:26px;text-align:center;padding:40px 24px;position:relative;overflow:hidden}
+        .final-cta .box h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;letter-spacing:-0.5px;margin-bottom:8px}
+        .final-cta .box p{color:var(--txt-dim);font-size:0.92rem;margin-bottom:24px}
+        .final-cta .box .big-wa{display:inline-flex;align-items:center;gap:12px;background:#25D366;color:#fff;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:0.5px;padding:17px 34px;border-radius:99px;text-decoration:none;box-shadow:0 16px 44px rgba(37,211,102,0.35);transition:transform .3s,filter .3s}
+        .final-cta .box .big-wa:hover{transform:translateY(-3px) scale(1.02);filter:brightness(1.08)}
+        .final-cta .box .mini-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:22px;font-size:0.72rem;color:var(--txt-dim);font-weight:600}
+        .final-cta .box .mini-trust i{color:var(--cyan);margin-right:5px}
+        footer{position:relative;z-index:10;border-top:1px solid var(--line);background:rgba(8,8,16,0.6);text-align:center;padding:30px 20px 90px}
+        footer .fbrand{font-weight:800;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:6px}
+        footer .fbrand span{color:var(--cyan)}
+        footer p{font-size:0.7rem;color:rgba(255,255,255,0.28);line-height:1.8}
+        footer a{color:rgba(0,210,255,0.7);text-decoration:none}
+        footer a:hover{color:var(--cyan)}
+
+        /* WhatsApp flutuante */
+        .float-wa{position:fixed;bottom:22px;right:22px;width:58px;height:58px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;box-shadow:0 10px 30px rgba(37,211,102,0.4);z-index:60;transition:transform .3s}
+        .float-wa:hover{transform:scale(1.1) rotate(6deg)}
+
+        /* ─────────── Responsivo ─────────── */
+        @media(max-width:1023px){
+            .layout{max-width:520px}
+            .mini-card{flex-wrap:wrap}
+            .mini-card a{width:100%;text-align:center}
         }
-        @media (min-width: 481px) and (max-width: 1024px) {
-            .card { max-width: 420px; }
-            .benefits-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (min-width: 1600px) {
-            body { font-size: 1.05rem; }
-            .card { max-width: 480px; padding: 48px 40px; }
-            .input-wrap input { padding: 16px 44px 16px 44px; font-size: 1rem; }
-            .btn-primary { padding: 18px; font-size: 0.9rem; }
-            .benefits-grid { grid-template-columns: repeat(3, 1fr); max-width: 1100px; margin: 0 auto; }
-            .benefits h2 { font-size: 2rem; }
-            .benefit-card { padding: 32px 24px; }
-            .benefit-card h3 { font-size: 1.1rem; }
-            .benefit-card p { font-size: 0.85rem; }
+        @media(max-width:520px){
+            .card{padding:26px 18px;border-radius:22px;margin-top:6px}
+            .orb-1{width:220px;height:220px}
+            .orb-2{width:180px;height:180px}
+            .orb-3{display:none}
+            .topbar{font-size:0.68rem}
+            footer{padding-bottom:96px}
         }
     </style>
 </head>
@@ -615,164 +221,251 @@
     <div class="orb orb-3"></div>
     <div class="stars" id="stars"></div>
 
-    <div class="card">
-        <div class="logo-wrap">
-            <div class="logo-icon">
-                <i class="fas fa-play"></i>
+    <!-- Barra de urgência -->
+    <div class="topbar">
+        <span class="off-limite">
+            <span>🔥 Oferta relâmpago: <b>40% OFF</b> na 1ª mensalidade + teste grátis de 6h</span>
+            <span class="pill" id="count-l">05:00:00</span>
+        </span>
+    </div>
+
+    <!-- Navegação -->
+    <nav class="nav">
+        <a class="brand" href="/site" aria-label="MAXX STREAM">
+            <span class="logo"><i class="fas fa-play"></i></span>
+            <div>
+                <h1>MAXX <span>STREAM</span></h1>
+                <small>Área do Cliente</small>
             </div>
-            <h1>MAXX STREAM</h1>
-            <p>Área do Cliente</p>
-        </div>
-
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('login')" id="tab-login"><i class="fas fa-lock"></i>Entrar</button>
-            <button class="tab-btn" onclick="switchTab('register')" id="tab-register"><i class="fas fa-user-plus"></i>Criar Conta</button>
-        </div>
-
-        <div class="form-container">
-            <!-- Login -->
-            <form id="form-login">
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="login-email" placeholder="seu@email.com" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="login-senha" placeholder="Digite sua senha" required>
-                        <button type="button" class="toggle-pw" onclick="toggleSenha('login-senha', this)"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <div class="form-options">
-                    <label><input type="checkbox" checked> Lembrar-me</label>
-                    <a href="https://wa.me/5519986105935?text=Ol%C3%A1!%20Preciso%20recuperar%20minha%20senha%20do%20MAXX%20STREAM." target="_blank">Esqueci a senha</a>
-                </div>
-                <button type="submit" class="btn-primary" id="btn-login">Entrar <i class="fas fa-arrow-right"></i></button>
-            </form>
-
-            <!-- Register -->
-            <form id="form-register" style="display:none">
-                <div class="form-group">
-                    <label>Nome</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="reg-nome" placeholder="Seu nome completo" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="reg-email" placeholder="seu@email.com" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>WhatsApp</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-phone input-icon"></i>
-                        <input type="tel" id="reg-telefone" placeholder="(11) 99999-9999" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="reg-senha" placeholder="Mínimo 6 caracteres" required minlength="6">
-                        <button type="button" class="toggle-pw" onclick="toggleSenha('reg-senha', this)"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <button type="submit" class="btn-primary" id="btn-register">Criar Conta <i class="fas fa-user-plus"></i></button>
-            </form>
-        </div>
-
-        <div class="divider">
-            <span></span>
-            <small>Suporte</small>
-            <span></span>
-        </div>
-
-        <div class="social-buttons">
-            <a href="https://wa.me/5519986105935" target="_blank" class="social-btn wa">
-                <i class="fab fa-whatsapp"></i> WhatsApp
-            </a>
-            <a href="https://wa.me/5519986105935" target="_blank" class="social-btn">
-                <i class="fas fa-headset"></i> Suporte
+        </a>
+        <div class="nav-cta">
+            <a class="exit-link" href="/site"><i class="fas fa-globe"></i> Ver site</a>
+            <a class="social-btn wa pulse-ring" style="flex:none;padding:10px 18px;text-decoration:none" href="https://wa.me/5519986105935?text=Olá! Quero pedir meu teste grátis." target="_blank">
+                <i class="fab fa-whatsapp"></i> Teste grátis
             </a>
         </div>
+    </nav>
 
-        <div class="error-msg" id="login-erro"></div>
-        <div class="error-msg" id="register-erro"></div>
-        <div class="error-msg" id="otp-erro"></div>
-        <div class="loading" id="loading">
-            <i class="fas fa-spinner fa-spin"></i> <span id="loading-text">Carregando...</span>
+    <main class="layout">
+        <!-- Pitch comercial -->
+        <section class="pitch">
+            <span class="eyebrow"><i class="fas fa-crown"></i> Premium · 4K · Anti-travamento</span>
+            <h2>Pague pouco e tenha tudo<br>que você já paga caro para ver. <span class="grad">Em um só lugar.</span></h2>
+            <p class="sub">Mais de <b style="color:#fff">30.000 canais</b> ao vivo, filmes e séries em até <b style="color:#fff">4K Ultra HD</b>, futebol, combate, infantil e muito mais — com estabilidade e suporte 24h, por menos de <b style="color:#fff">R$ 1 por dia</b>.</p>
+
+            <div class="feats">
+                <div class="feat"><span class="ico"><i class="fas fa-tv"></i></span><div><b>Todos os canais</b><span>Esporte, filmes, séries, infantil, doc e notícias atualizados todo dia.</span></div></div>
+                <div class="feat"><span class="ico"><i class="fas fa-film"></i></span><div><b>Catalogo completo</b><span>Lançamentos semanais de filmes e séries em HD, Full HD e 4K.</span></div></div>
+                <div class="feat"><span class="ico"><i class="fas fa-bolt"></i></span><div><b>Sem travamentos</b><span>Servidores dedicados com 99,9% de uptime e buffer reduzido.</span></div></div>
+                <div class="feat"><span class="ico"><i class="fas fa-mobile-alt"></i></span><div><b>Todos os dispositivos</b><span>Smart TV, TV Box, Android, iPhone, PC, Fire Stick e Web.</span></div></div>
+            </div>
+
+            <div class="mini-card">
+                <div class="price"><div class="cut">R$ 85/mês</div><div class="now">R$ 42</div><div class="per">POR 3 MESES</div></div>
+                <div class="info">
+                    <b>⚡ Plano Trimestral em promoção</b>
+                    <span>Meta anual de <b style="color:#fff">até 5 aparelhos</b>, acesso total 4K + suporte VIP. Economia de mais de 50%.</span>
+                </div>
+                <a href="https://wa.me/5519986105935?text=Quero%20o%20plano%20Trimestral%20em%20promo%C3%A7%C3%A3o" target="_blank">Quero essa oferta</a>
+            </div>
+
+            <div class="stats">
+                <div class="stat"><div class="v">30k+</div><div class="l">canais</div></div>
+                <div class="stat"><div class="v">50k+</div><div class="l">títulos</div></div>
+                <div class="stat"><div class="v">10k+</div><div class="l">clientes</div></div>
+                <div class="stat"><div class="v">24h</div><div class="l">suporte</div></div>
+            </div>
+
+            <div class="depos">
+                <div class="tit">Quem usa, recomenda</div>
+                <div class="depo"><div class="av">MR</div><div><div class="stars">★★★★★</div><p>"Assino há 8 meses e nunca travou. Funciona na Smart TV, no celular, em tudo. Melhor custo-benefício que já vi."</p><div class="nm">Marcos R. · São Paulo, SP</div></div></div>
+                <div class="depo"><div class="av">JS</div><div><div class="stars">★★★★★</div><p>"Fiz o teste grátis de 6 horas e assinei na hora. Futebol ao vivo, filmes atualizados e suporte que responde na hora."</p><div class="nm">Juliana S. · Rio de Janeiro, RJ</div></div></div>
+            </div>
+
+            <div class="trust-row">
+                <span class="trust"><i class="fas fa-shield-alt"></i> Pagamento seguro (Pix/Cartão)</span>
+                <span class="trust"><i class="fas fa-bolt"></i> Ativação em minutos</span>
+                <span class="trust"><i class="fas fa-undo"></i> Garantia de estabilidade</span>
+                <a class="trust wa" href="https://wa.me/5519986105935" target="_blank"><i class="fab fa-whatsapp"></i> Suporte 24h</a>
+            </div>
+        </section>
+
+        <!-- Login / Cadastro / Recuperação -->
+        <section class="auth-area">
+            <div class="card">
+                <div class="head">
+                    <h3><i class="fas fa-user-circle" style="color:var(--cyan)"></i> Bem-vindo de volta!</h3>
+                    <p>Entrou em sua conta ou crie grátis e receba <b style="color:#fff">6 horas de teste</b>.</p>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('login')" id="tab-login"><i class="fas fa-lock"></i>Entrar</button>
+                    <button class="tab-btn" onclick="switchTab('register')" id="tab-register"><i class="fas fa-user-plus"></i>Criar Conta</button>
+                    <button class="tab-btn" onclick="switchTab('recover')" id="tab-recover"><i class="fas fa-key"></i>Recuperar</button>
+                </div>
+
+                <!-- Login -->
+                <form id="form-login">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="login-email" placeholder="seu@email.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="login-senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                            <button type="button" class="toggle-pw" onclick="toggleSenha('login-senha', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label><input type="checkbox" checked> Lembrar-me</label>
+                        <a href="#" onclick="switchTab('recover'); return false;">Esqueci a senha</a>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btn-login">Entrar no painel <i class="fas fa-arrow-right"></i></button>
+                </form>
+
+                <!-- Cadastro -->
+                <form id="form-register" style="display:none">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="reg-nome" placeholder="Seu nome completo" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="reg-email" placeholder="seu@email.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" id="reg-telefone" placeholder="(11) 99999-9999" required autocomplete="tel">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="reg-senha" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                            <button type="button" class="toggle-pw" onclick="toggleSenha('reg-senha', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btn-register">Criar conta e ganhar teste <i class="fas fa-gift"></i></button>
+                </form>
+
+                <!-- Recuperar -->
+                <form id="form-recover" style="display:none">
+                    <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);text-align:center;margin-bottom:18px;line-height:1.6">
+                        Informe o e-mail cadastrado e enviaremos um <b style="color:var(--cyan)">código de verificação</b> para criar uma nova senha.
+                    </p>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="rec-email" placeholder="seu@email.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btn-recover">Enviar código <i class="fas fa-paper-plane"></i></button>
+                    <div style="text-align:center;margin-top:14px">
+                        <a href="#" style="color:rgba(0,210,255,0.7);font-size:0.75rem;text-decoration:none" onclick="switchTab('login'); return false;">← Voltar para o login</a>
+                    </div>
+                </form>
+
+                <div class="divider"><span></span><small>Precisa de ajuda?</small><span></span></div>
+                <div class="social-buttons">
+                    <a href="https://wa.me/5519986105935" target="_blank" class="social-btn wa pulse-ring"><i class="fab fa-whatsapp"></i> Teste Grátis</a>
+                    <a href="https://wa.me/5519986105935" target="_blank" class="social-btn"><i class="fas fa-headset"></i> Suporte</a>
+                </div>
+
+                <div class="error-msg" id="login-erro"></div>
+                <div class="error-msg" id="register-erro"></div>
+                <div class="error-msg" id="recover-erro"></div>
+                <div class="error-msg" id="otp-erro"></div>
+                <div class="loading" id="loading"><i class="fas fa-spinner fa-spin"></i> <span id="loading-text">Carregando...</span></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- CTA final -->
+    <section class="final-cta">
+        <div class="box">
+            <h2>Ainda em dúvida? <span style="color:var(--cyan)">Aproveite o teste grátis.</span></h2>
+            <p>6 horas de acesso completo, sem compromisso. Depois, você decide: continuar economizando ou não pagar nada.</p>
+            <a href="https://wa.me/5519986105935?text=Olá! Quero pedir meu teste grátis." target="_blank" class="big-wa"><i class="fab fa-whatsapp" style="font-size:1.5rem"></i> Quero meu teste grátis</a>
+            <div class="mini-trust">
+                <span><i class="fas fa-bolt"></i> Ativação em minutos</span>
+                <span><i class="fas fa-shield-alt"></i> Compra protegida</span>
+                <span><i class="fas fa-crown"></i> Suporte especializado</span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="fbrand">MAXX <span>STREAM</span></div>
+        <p>Mais de 30.000 canais · Filmes e séries em 4K · Suporte 24 horas<br>
+        &copy; 2026 MAXX STREAM — Todos os direitos reservados. · <a href="/site">Conheça o site</a></p>
+    </footer>
+
+    <!-- Modal OTP -->
+    <div class="modal-overlay" id="otp-modal">
+        <div class="modal-box">
+            <i class="fas fa-shield-alt" style="color:var(--cyan);font-size:1.9rem"></i>
+            <h3>Verificação em duas etapas</h3>
+            <p class="muted">Enviamos um código para <b id="otp-email-label" style="color:#fff">—</b> e também para seu WhatsApp. Digite abaixo para concluir.</p>
+            <div class="fallback-notice" id="otp-fallback-notice">
+                <i class="fas fa-info-circle" style="margin-right:4px"></i> Modo de segurança: o envio automático não está disponível agora. Use o código abaixo:
+                <div class="code" id="otp-fallback-code">—</div>
+            </div>
+            <input type="text" id="otp-input" maxlength="6" placeholder="000000" class="otp-input" inputmode="numeric" autocomplete="one-time-code">
+            <button onclick="confirmarOtp()" class="btn-primary" style="margin-bottom:8px">Confirmar código</button>
+            <button onclick="fecharOtp()" class="btn-sec">Cancelar</button>
+            <div class="error-msg" id="otp-modal-erro"></div>
         </div>
     </div>
 
-    <!-- OTP Modal -->
-    <div id="otp-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:1000;align-items:center;justify-content:center;padding:20px">
-        <div style="background:#0e0e1a;border:1px solid rgba(255,255,255,0.06);border-radius:28px;padding:36px;max-width:380px;width:100%;text-align:center">
-            <div style="margin-bottom:20px">
-                <i class="fas fa-play-circle" style="color:#00d2ff;font-size:2rem"></i>
-                <h2 style="font-size:1.2rem;font-weight:700;margin:8px 0 4px">Verificação</h2>
-                <p style="color:#8b8fa8;font-size:0.8rem;margin:0">Enviamos um código para <strong id="otp-email-label" style="color:#fff"></strong> e seu WhatsApp.</p>
+    <!-- Modal redefinir senha -->
+    <div class="modal-overlay" id="reset-modal">
+        <div class="modal-box">
+            <i class="fas fa-key" style="color:var(--cyan);font-size:1.9rem"></i>
+            <h3>Redefinir senha</h3>
+            <p class="muted">Digite o código enviado para <b id="reset-email-label" style="color:#fff">—</b> e defina sua nova senha.</p>
+            <div class="fallback-notice" id="reset-fallback-notice">
+                <i class="fas fa-info-circle" style="margin-right:4px"></i> Modo de segurança: use o código abaixo.
+                <div class="code" id="reset-fallback-code" style="font-size:1.2rem">—</div>
             </div>
-            <div id="otp-fallback-notice" style="display:none;background:rgba(0,210,255,0.06);border:1px solid rgba(0,210,255,0.25);border-radius:12px;padding:12px;margin-bottom:14px;font-size:0.75rem;color:#9adcff;line-height:1.6">
-                <i class="fas fa-info-circle" style="margin-right:4px"></i> Modo de segurança: o envio de e-mail ainda não foi configurado no sistema. Use o código abaixo para confirmar:
-                <div id="otp-fallback-code" style="font-size:1.4rem;font-weight:800;letter-spacing:0.3em;color:#00d2ff;font-family:monospace;margin-top:6px"></div>
+            <input type="text" id="reset-otp" maxlength="6" placeholder="Código (000000)" class="otp-input" style="font-size:1.3rem;letter-spacing:0.4em" inputmode="numeric">
+            <div style="position:relative;margin-bottom:12px">
+                <input type="password" id="reset-senha" placeholder="Nova senha (mín. 6)" style="width:100%;padding:14px 40px 14px 16px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);border-radius:13px;color:#fff;outline:none;font-size:0.88rem">
+                <button type="button" onclick="toggleSenha('reset-senha', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer"><i class="fas fa-eye"></i></button>
             </div>
-            <input type="text" id="otp-input" maxlength="6" placeholder="000000" style="width:100%;padding:16px;font-size:1.8rem;text-align:center;letter-spacing:0.5em;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;color:#fff;outline:none;font-family:monospace;margin-bottom:16px">
-            <button onclick="confirmarOtp()" class="btn-primary" style="width:100%;margin-bottom:8px">Confirmar Código</button>
-            <button onclick="fecharOtp()" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);color:#fff;border:none;border-radius:14px;cursor:pointer;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px">Cancelar</button>
-            <div class="error-msg" id="otp-modal-erro" style="margin-top:12px"></div>
+            <div style="position:relative;margin-bottom:16px">
+                <input type="password" id="reset-senha2" placeholder="Confirmar nova senha" style="width:100%;padding:14px 40px 14px 16px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);border-radius:13px;color:#fff;outline:none;font-size:0.88rem">
+                <button type="button" onclick="toggleSenha('reset-senha2', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer"><i class="fas fa-eye"></i></button>
+            </div>
+            <button onclick="confirmarReset()" class="btn-primary" style="margin-bottom:8px">Redefinir senha</button>
+            <button onclick="fecharReset()" class="btn-sec">Cancelar</button>
+            <div class="error-msg" id="reset-erro"></div>
+            <div class="error-msg ok" id="reset-ok" style="margin-top:12px"></div>
         </div>
     </div>
 
-    <div class="benefits">
-        <h2>Por que MAXX STREAM?</h2>
-        <p class="sub">A melhor experiência IPTV do Brasil</p>
-        <div class="benefits-grid">
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-tv"></i></div>
-                <h3>Canais ao Vivo</h3>
-                <p>Mais de 1.500 canais em HD e 4K, incluindo esportes, filmes, séries e notícias 24h</p>
-            </div>
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-film"></i></div>
-                <h3>Filmes & Séries</h3>
-                <p>Catálogo completo com lançamentos semanais, conteúdo infantil e documentários exclusivos</p>
-            </div>
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-bolt"></i></div>
-                <h3>Sem Travamentos</h3>
-                <p>Servidores dedicados com alta disponibilidade e suporte a múltiplas conexões simultâneas</p>
-            </div>
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-headset"></i></div>
-                <h3>Suporte 24/7</h3>
-                <p>Equipe técnica pronta para ajudar no WhatsApp, instalação e configuração inclusas</p>
-            </div>
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-mobile-alt"></i></div>
-                <h3>Multiplataforma</h3>
-                <p>Funciona em Smart TV, Android, iOS, PC, TV Box e Fire Stick sem custo adicional</p>
-            </div>
-            <div class="benefit-card">
-                <div class="icon"><i class="fas fa-shield-alt"></i></div>
-                <h3>Pagamento Seguro</h3>
-                <p>Planos a partir de R$ 35/mês com pagamento via PIX, cartão ou boleto. Cancele quando quiser</p>
-            </div>
-        </div>
-    </div>
+    <!-- WhatsApp flutuante -->
+    <a href="https://wa.me/5519986105935" target="_blank" class="float-wa" aria-label="Suporte no WhatsApp"><i class="fab fa-whatsapp"></i></a>
 
     <script>
-        // ── Stars ──
+        // ── Estrelas ──
         (function() {
             const container = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 80; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
@@ -784,42 +477,49 @@
             }
         })();
 
-        // ── Phone Mask ──
+        // ── Countdown da barra de oferta ──
+        (function() {
+            const KEY = 'maxxLoginOfferEnd';
+            const DUR = 5 * 3600 * 1000;
+            let end = parseInt(localStorage.getItem(KEY), 10);
+            if (!end || end <= Date.now()) { end = Date.now() + DUR; localStorage.setItem(KEY, end); }
+            const el = document.getElementById('count-l');
+            function tick() {
+                let d = end - Date.now();
+                if (d <= 0) { end = Date.now() + DUR; localStorage.setItem(KEY, end); d = DUR; }
+                const h = String(Math.floor(d / 3600000)).padStart(2, '0');
+                const m = String(Math.floor((d % 3600000) / 60000)).padStart(2, '0');
+                const s = String(Math.floor((d % 60000) / 1000)).padStart(2, '0');
+                if (el) el.textContent = h + ':' + m + ':' + s;
+            }
+            tick(); setInterval(tick, 1000);
+        })();
+
+        // ── Mask de telefone ──
         document.getElementById('reg-telefone')?.addEventListener('input', function() {
             let v = this.value.replace(/\D/g, '').substring(0, 11);
-            if (v.length > 6) v = '(' + v.substring(0,2) + ') ' + v.substring(2,7) + '-' + v.substring(7);
-            else if (v.length > 2) v = '(' + v.substring(0,2) + ') ' + v.substring(2);
+            if (v.length > 6) v = '(' + v.substring(0, 2) + ') ' + v.substring(2, 7) + '-' + v.substring(7);
+            else if (v.length > 2) v = '(' + v.substring(0, 2) + ') ' + v.substring(2);
             else if (v.length > 0) v = '(' + v;
             this.value = v;
         });
 
-        // ── Toggle Password ──
+        // ── Toggle senha ──
         function toggleSenha(id, btn) {
             const i = document.getElementById(id);
             i.type = i.type === 'password' ? 'text' : 'password';
             btn.innerHTML = i.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
         }
 
-        // ── Tab Switch ──
+        // ── Troca de abas ──
         function switchTab(tab) {
-            const isLogin = tab === 'login';
-            document.getElementById('tab-login').classList.toggle('active', isLogin);
-            document.getElementById('tab-register').classList.toggle('active', !isLogin);
-            const fLogin = document.getElementById('form-login');
-            const fReg = document.getElementById('form-register');
-            fLogin.style.opacity = isLogin ? '1' : '0';
-            fReg.style.opacity = isLogin ? '0' : '1';
-            setTimeout(() => {
-                fLogin.style.display = isLogin ? 'block' : 'none';
-                fReg.style.display = isLogin ? 'none' : 'block';
-                fLogin.style.opacity = '1';
-                fReg.style.opacity = '1';
-            }, isLogin ? 0 : 0);
-            document.getElementById('login-erro').style.display = 'none';
-            document.getElementById('register-erro').style.display = 'none';
+            const forms = { login: 'form-login', register: 'form-register', recover: 'form-recover' };
+            const tabs = { login: 'tab-login', register: 'tab-register', recover: 'tab-recover' };
+            Object.keys(tabs).forEach(k => document.getElementById(tabs[k]).classList.toggle('active', k === tab));
+            Object.keys(forms).forEach(k => { document.getElementById(forms[k]).style.display = (k === tab) ? 'block' : 'none'; });
+            ['login', 'register', 'recover'].forEach(k => document.getElementById(k + '-erro').style.display = 'none');
         }
 
-        // ── Helpers ──
         const API = window.location.origin + '/api';
 
         function mostrarErro(id, msg) {
@@ -851,30 +551,24 @@
                 notice.style.display = 'none';
                 document.getElementById('otp-input').value = '';
             }
-            document.getElementById('otp-modal').style.display = 'flex';
+            document.getElementById('otp-modal').classList.add('open');
         }
 
-        // ── Remember me (e-mail salvo) ──
+        // ── Lembrar e-mail ──
         const REMEMBER_KEY = 'maxxRememberEmail';
         const emailInput = document.getElementById('login-email');
         const rememberCheck = document.querySelector('#form-login input[type="checkbox"]');
         const rememberedEmail = localStorage.getItem(REMEMBER_KEY);
-        if (rememberedEmail && emailInput) {
-            emailInput.value = rememberedEmail;
-            if (rememberCheck) rememberCheck.checked = true;
-        }
+        if (rememberedEmail && emailInput) { emailInput.value = rememberedEmail; if (rememberCheck) rememberCheck.checked = true; }
 
-        // ── Login Submit ──
+        // ── Login ──
         document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
             if (!email || !senha) { mostrarErro('login-erro', 'Preencha todos os campos.'); return; }
-            if (rememberCheck && rememberCheck.checked) {
-                localStorage.setItem(REMEMBER_KEY, email);
-            } else {
-                localStorage.removeItem(REMEMBER_KEY);
-            }
+            if (rememberCheck && rememberCheck.checked) localStorage.setItem(REMEMBER_KEY, email);
+            else localStorage.removeItem(REMEMBER_KEY);
             document.getElementById('login-erro').style.display = 'none';
             mostrarLoading(true, 'Autenticando...');
             try {
@@ -900,7 +594,7 @@
             mostrarLoading(false);
         });
 
-        // ── Register Submit ──
+        // ── Cadastro ──
         document.getElementById('form-register').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nome = document.getElementById('reg-nome').value.trim();
@@ -932,9 +626,85 @@
                 setTimeout(() => { switchTab('login'); mostrarLoading(false); }, 1500);
             } catch (err) { mostrarErro('register-erro', 'Erro: ' + err.message); mostrarLoading(false); }
         });
+
+        // ── Recuperar senha ──
+        let resetEmail = '';
+        let resetFallbackCode = null;
+
+        document.getElementById('form-recover').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('rec-email').value.trim();
+            if (!email) { mostrarErro('recover-erro', 'Digite seu e-mail.'); return; }
+            document.getElementById('recover-erro').style.display = 'none';
+            mostrarLoading(true, 'Enviando código...');
+            try {
+                const r = await fetch(API + '/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Erro ao enviar código');
+
+                resetEmail = email;
+                resetFallbackCode = data.fallbackCode || null;
+                document.getElementById('reset-email-label').textContent = data.emailMask || email;
+                const notice = document.getElementById('reset-fallback-notice');
+                const codeInput = document.getElementById('reset-otp');
+                if (resetFallbackCode) {
+                    document.getElementById('reset-fallback-code').textContent = resetFallbackCode;
+                    codeInput.value = resetFallbackCode;
+                    notice.style.display = 'block';
+                } else {
+                    notice.style.display = 'none';
+                    codeInput.value = '';
+                }
+                document.getElementById('reset-senha').value = '';
+                document.getElementById('reset-senha2').value = '';
+                document.getElementById('reset-erro').style.display = 'none';
+                document.getElementById('reset-ok').style.display = 'none';
+                document.getElementById('reset-modal').classList.add('open');
+            } catch (err) { mostrarErro('recover-erro', err.message); }
+            mostrarLoading(false);
+        });
+
+        function fecharReset() {
+            document.getElementById('reset-modal').classList.remove('open');
+            document.getElementById('reset-erro').style.display = 'none';
+            document.getElementById('reset-ok').style.display = 'none';
+            resetFallbackCode = null;
+        }
+
+        async function confirmarReset() {
+            const codigo = document.getElementById('reset-otp').value.trim();
+            const senha = document.getElementById('reset-senha').value;
+            const senha2 = document.getElementById('reset-senha2').value;
+            if (!codigo) { mostrarErro('reset-erro', 'Digite o código de verificação.'); return; }
+            if (senha.length < 6) { mostrarErro('reset-erro', 'A nova senha deve ter no mínimo 6 caracteres.'); return; }
+            if (senha !== senha2) { mostrarErro('reset-erro', 'As senhas não coincidem.'); return; }
+            document.getElementById('reset-erro').style.display = 'none';
+            mostrarLoading(true, 'Redefinindo senha...');
+            try {
+                const r = await fetch(API + '/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail, codigo, newPassword: senha })
+                });
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Erro ao redefinir senha');
+
+                const okEl = document.getElementById('reset-ok');
+                okEl.textContent = 'Senha redefinida! Faça o login.';
+                okEl.style.display = 'block';
+                document.getElementById('login-email').value = resetEmail;
+                setTimeout(() => { fecharReset(); switchTab('login'); }, 1600);
+            } catch (err) { mostrarErro('reset-erro', err.message); }
+            mostrarLoading(false);
+        }
+
         // ── OTP ──
         function fecharOtp() {
-            document.getElementById('otp-modal').style.display = 'none';
+            document.getElementById('otp-modal').classList.remove('open');
             document.getElementById('otp-modal-erro').style.display = 'none';
             document.getElementById('otp-fallback-notice').style.display = 'none';
             otpFallbackCode = null;
@@ -965,9 +735,11 @@
             }
         }
 
-        // Enter key support for OTP
-        document.getElementById('otp-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') confirmarOtp();
+        document.getElementById('otp-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmarOtp(); });
+
+        // Fechar modal clicando fora
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+            m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
         });
     </script>
 </body>

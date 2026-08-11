@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAXX STREAM — Painel</title>
+    <meta name="robots" content="noindex,nofollow">
+    <script>if (location.protocol === 'file:') location.replace('http://localhost:5000/painel');</script>
+    <link rel="icon" href="logo.jpg" type="image/jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#050508;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,210,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,0.035) 1px,transparent 1px);background-size:60px 60px;z-index:0;animation:gridMove 8s linear infinite}
+        @keyframes gridMove{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}
+        .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+        .orb-1{width:420px;height:420px;background:radial-gradient(circle,rgba(0,210,255,0.15),transparent);top:-14%;right:-8%;animation:float 9s ease-in-out infinite}
+        .orb-2{width:340px;height:340px;background:radial-gradient(circle,rgba(124,106,255,0.14),transparent);bottom:-12%;left:-8%;animation:float 11s ease-in-out infinite reverse}
+        @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,22px)}}
+        .card{position:relative;z-index:10;width:92%;max-width:400px;background:rgba(12,14,26,0.82);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:26px;padding:42px 34px;text-align:center;box-shadow:0 40px 90px rgba(0,0,0,0.65);animation:in .7s cubic-bezier(.16,1,.3,1)}
+        @keyframes in{from{opacity:0;transform:translateY(28px) scale(0.96)}to{opacity:1;transform:none}}
+        .card::before{content:'';position:absolute;inset:-1px;border-radius:26px;background:linear-gradient(135deg,rgba(0,210,255,0.25),transparent 40%,transparent 60%,rgba(0,210,255,0.05));z-index:-1;padding:1px;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude}
+        .logo{width:58px;height:58px;margin:0 auto 16px;border-radius:16px;background:linear-gradient(135deg,rgba(0,210,255,0.16),rgba(0,123,255,0.05));border:1px solid rgba(0,210,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:#00d2ff;box-shadow:0 0 24px rgba(0,210,255,0.25)}
+        h1{font-size:1.35rem;font-weight:900;letter-spacing:-0.4px;text-transform:uppercase;margin-bottom:4px}
+        h1 span{color:#00d2ff}
+        .sub{color:rgba(255,255,255,0.45);font-size:0.8rem;margin-bottom:28px}
+        .lock{width:54px;height:54px;margin:0 auto 20px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#00d2ff;font-size:1.2rem}
+        .field{position:relative;margin-bottom:16px}
+        .field i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:0.9rem}
+        input{width:100%;padding:15px 44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;color:#fff;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;transition:all .3s}
+        input:focus{border-color:rgba(0,210,255,0.5);box-shadow:0 0 0 4px rgba(0,210,255,0.07);background:rgba(255,255,255,0.07)}
+        input::placeholder{color:rgba(255,255,255,0.22)}
+        .toggle{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;padding:4px;font-size:0.9rem}
+        .toggle:hover{color:#fff}
+        button.enter{width:100%;padding:15px;border:none;border-radius:14px;font-size:0.85rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#00d2ff,#0099cc);color:#001014;text-transform:uppercase;letter-spacing:0.5px;transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+        button.enter:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,210,255,0.32)}
+        button.enter:disabled{opacity:0.55;transform:none}
+        .erro{display:none;margin-top:14px;padding:11px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.75rem;font-weight:600;animation:shake .4s}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+        .foot{color:rgba(255,255,255,0.2);font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;margin-top:24px}
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="card">
+        <div class="logo"><i class="fas fa-play"></i></div>
+        <h1>MAXX <span>STREAM</span></h1>
+        <p class="sub">Painel exclusivo</p>
+
+        <div class="lock"><i class="fas fa-lock"></i></div>
+
+        <form id="form">
+            <div class="field">
+                <i class="fas fa-key"></i>
+                <input type="password" id="senha" placeholder="Digite a senha de acesso" autofocus autocomplete="current-password">
+                <button type="button" class="toggle" onclick="toggle()"><i class="fas fa-eye"></i></button>
+            </div>
+            <button type="submit" class="enter" id="btn"><i class="fas fa-sign-in-alt"></i> Entrar no Painel</button>
+            <div class="erro" id="erro"></div>
+        </form>
+
+        <div class="foot">Acesso restrito</div>
+    </div>
+
+    <script>
+        const API = window.location.origin + '/api';
+
+        if (localStorage.getItem('token')) {
+            window.location.href = 'cliente.html';
+        }
+
+        function toggle() {
+            const i = document.getElementById('senha');
+            const b = document.querySelector('.toggle');
+            i.type = i.type === 'password' ? 'text' : 'password';
+            b.innerHTML = i.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        }
+
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('senha').value;
+            const erro = document.getElementById('erro');
+            const btn = document.getElementById('btn');
+            if (!password) return;
+            erro.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            try {
+                const r = await fetch(API + '/auth/quick-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await r.json();
+                if (!r.ok) throw new Error(data.error || 'Senha incorreta.');
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = 'cliente.html';
+            } catch (err) {
+                erro.textContent = 'Senha incorreta. Tente novamente.';
+                erro.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar no Painel';
+                const i = document.getElementById('senha');
+                i.value = '';
+                i.focus();
+            }
+        });
+    </script>
+</body>
+</html>

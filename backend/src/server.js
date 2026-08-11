@@ -52,6 +52,8 @@ async function main() {
   app.use('/api/auth/login', authLimiter);
   app.use('/api/auth/register', authLimiter);
   app.use('/api/auth/quick-login', authLimiter);
+  app.use('/api/auth/forgot-password', authLimiter);
+  app.use('/api/auth/reset-password', authLimiter);
 
   // WebSocket
   io.on('connection', (socket) => {
@@ -137,11 +139,18 @@ async function main() {
     res.sendFile(path.join(staticPath, 'index.html'));
   });
 
+  // Painel com senha: /painel (ou /painel/) pede apenas a senha de acesso
+  app.get(/^\/painel\/?$/, (req, res) => {
+    res.sendFile(path.join(staticPath, 'painel.html'));
+  });
+  console.log('[WEB] Painel protegido por senha em /painel');
+
   // Painel React (admin) disponível em /painel quando o build existir
   const painelPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
   if (fs.existsSync(painelPath)) {
     app.use('/painel', express.static(painelPath));
-    app.get(/^\/painel(?:\/.*)?$/, (req, res) => {
+    // SPA do painel para rotas internas (ex: /painel/relatorios) — a raiz /painel fica no gate de senha
+    app.get(/^\/painel\/.+/, (req, res) => {
       res.sendFile(path.join(painelPath, 'index.html'));
     });
     console.log('[WEB] Painel React em /painel');

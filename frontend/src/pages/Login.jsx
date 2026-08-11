@@ -1,6 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const API = window.location.origin + '/api';
+
+// Componente de campo OTP individual
+function OtpInputGroup({ value, onChange }) {
+  const inputs = useRef([]);
+  const digits = (value || '').padEnd(6, '').split('').slice(0, 6);
+
+  const handleKey = (i, e) => {
+    if (e.key === 'Backspace') {
+      const arr = digits.map(d => d === ' ' ? '' : d);
+      if (arr[i]) {
+        arr[i] = '';
+        onChange(arr.join(''));
+      } else if (i > 0) {
+        arr[i - 1] = '';
+        onChange(arr.join(''));
+        inputs.current[i - 1]?.focus();
+      }
+      return;
+    }
+    if (e.key === 'ArrowLeft' && i > 0) { inputs.current[i - 1]?.focus(); return; }
+    if (e.key === 'ArrowRight' && i < 5) { inputs.current[i + 1]?.focus(); return; }
+  };
+
+  const handleChange = (i, e) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    if (!raw) return;
+    const arr = digits.map(d => d === ' ' ? '' : d);
+    // Suporte a colar
+    if (raw.length > 1) {
+      const pasted = raw.slice(0, 6);
+      onChange(pasted);
+      inputs.current[Math.min(pasted.length, 5)]?.focus();
+      return;
+    }
+    arr[i] = raw[0];
+    onChange(arr.join(''));
+    if (i < 5) inputs.current[i + 1]?.focus();
+  };
+
+  return (
+    <div className="flex gap-3 justify-center">
+      {[0,1,2,3,4,5].map(i => (
+        <input
+          key={i}
+          ref={el => inputs.current[i] = el}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={digits[i] && digits[i] !== ' ' ? digits[i] : ''}
+          onKeyDown={e => handleKey(i, e)}
+          onChange={e => handleChange(i, e)}
+          className="otp-digit"
+          autoComplete="off"
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Login({ navigate }) {
   const [email, setEmail] = useState('');
@@ -9,20 +67,27 @@ export default function Login({ navigate }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [emailMask, setEmailMask] = useState('');
   const [otpInfo, setOtpInfo] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setMounted(true), 50);
+  }, []);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Por favor, preencha todos os campos.');
-      return;
-    }
-    setError('');
-    setLoading(true);
+    if (!email || !password) { setError('Preencha todos os campos.'); return; }
+    setError(''); setLoading(true);
     try {
       const r = await fetch(API + '/auth/login', {
         method: 'POST',
@@ -31,17 +96,14 @@ export default function Login({ navigate }) {
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Erro ao logar');
-
       if (data.requireOtp) {
         setEmailMask(data.emailMask);
-        if (data.fallbackCode) {
-          setOtpCode(data.fallbackCode);
-          setOtpInfo('Modo de segurança: envio de e-mail não configurado. Seu código é ' + data.fallbackCode);
-        } else {
-          setOtpInfo('');
-        }
+        setOtpInfo(data.fallbackCode
+          ? 'E-mail não configurado. Seu código temporário: ' + data.fallbackCode
+          : '');
         setShowOtp(true);
-        setSuccess('');
+        setOtpCode('');
+        setResendCooldown(60);
       }
     } catch (err) {
       setError(err.message);
@@ -52,22 +114,20 @@ export default function Login({ navigate }) {
 
   const handleOtpVerify = async (e) => {
     e.preventDefault();
-    if (!otpCode) { setError('Digite o código de verificação.'); return; }
-    setError('');
-    setLoading(true);
+    if (otpCode.replace(/\s/g, '').length < 6) { setError('Digite o código de 6 dígitos.'); return; }
+    setError(''); setLoading(true);
     try {
       const r = await fetch(API + '/auth/verify-login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, codigo: otpCode })
+        body: JSON.stringify({ email, codigo: otpCode.replace(/\s/g, '') })
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Código inválido');
-
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      setSuccess('Login efetuado com sucesso! Redirecionando...');
-      setTimeout(() => navigate('dashboard'), 1500);
+      setSuccess('Verificado! Entrando no painel...');
+      setTimeout(() => navigate('dashboard'), 1200);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,159 +135,220 @@ export default function Login({ navigate }) {
     }
   };
 
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    setError(''); setLoading(true);
+    try {
+      const r = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Erro ao reenviar');
+      setResendCooldown(60);
+      setOtpCode('');
+      setOtpInfo(data.fallbackCode ? 'Código: ' + data.fallbackCode : '');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── TELA OTP ──
   if (showOtp) {
     return (
-      <div className="w-full max-w-[420px] glass-card rounded-3xl p-8 shadow-2xl relative border border-white/10">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent"></div>
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <i className="fas fa-play-circle text-[#00d2ff] text-3xl"></i>
-            <span className="text-2xl font-bold tracking-tighter uppercase italic text-white">
-              MAXX <span className="text-[#00d2ff]">STREAM</span>
-            </span>
+      <div className={`login-card ${mounted ? 'login-card--visible' : ''}`}>
+        <div className="login-card__glow-top" />
+        <div className="login-card__glow-bottom" />
+
+        <div className="login-logo">
+          <div className="login-logo__icon">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+              <circle cx="20" cy="20" r="20" fill="url(#lg1)" />
+              <polygon points="15,12 15,28 30,20" fill="white" />
+              <defs>
+                <linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40">
+                  <stop stopColor="#00d2ff" />
+                  <stop offset="1" stopColor="#007bff" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
-          <h2 className="text-lg text-gray-400 font-light">Verificação em duas etapas</h2>
+          <span className="login-logo__text">MAXX <span className="login-logo__accent">STREAM</span></span>
         </div>
 
-        <p className="text-gray-400 text-sm text-center mb-6">
-          Enviamos um código de verificação para <strong className="text-white">{emailMask}</strong> e também para seu WhatsApp.
+        <div className="login-otp-icon">
+          <svg viewBox="0 0 48 48" width="48" height="48">
+            <circle cx="24" cy="24" r="24" fill="rgba(0,210,255,0.1)" />
+            <path d="M24 14a10 10 0 110 20 10 10 0 010-20zm0 2a8 8 0 100 16 8 8 0 000-16zm0 3a1.5 1.5 0 011.5 1.5v4l2.7 1.56a1.5 1.5 0 01-1.5 2.6l-3.5-2A1.5 1.5 0 0122.5 26v-5.5A1.5 1.5 0 0124 19z" fill="#00d2ff"/>
+          </svg>
+        </div>
+
+        <h2 className="login-otp-title">Verificação em duas etapas</h2>
+        <p className="login-otp-desc">
+          Enviamos um código para <strong className="text-white">{emailMask}</strong>
+          {' '}e para o seu WhatsApp cadastrado.
         </p>
 
         {otpInfo && (
-          <div className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 p-3 rounded-xl text-sm mb-6 text-center">
-            <i className="fas fa-info-circle mr-2"></i> {otpInfo}
+          <div className="login-alert login-alert--info">
+            <i className="fas fa-info-circle" /> {otpInfo}
           </div>
         )}
-
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-xl text-sm mb-6 text-center animate-pulse">
-            <i className="fas fa-exclamation-triangle mr-2"></i> {error}
+          <div className="login-alert login-alert--error">
+            <i className="fas fa-exclamation-triangle" /> {error}
+          </div>
+        )}
+        {success && (
+          <div className="login-alert login-alert--success">
+            <i className="fas fa-check-circle" /> {success}
           </div>
         )}
 
-        <form onSubmit={handleOtpVerify} className="space-y-6">
-          <div className="relative">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Código de Verificação</label>
-            <input
-              type="text"
-              maxLength="6"
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="000000"
-              className="glass-input w-full text-center text-2xl tracking-[0.5em] py-4 rounded-xl"
-              required
-            />
+        <form onSubmit={handleOtpVerify} className="login-form" style={{marginTop: '24px'}}>
+          <div style={{ marginBottom: '28px' }}>
+            <label className="login-label">Código de 6 dígitos</label>
+            <OtpInputGroup value={otpCode} onChange={setOtpCode} />
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#007bff] hover:bg-[#00d2ff] text-white font-bold py-4 rounded-xl shadow-lg transition-all uppercase tracking-wider text-sm disabled:opacity-50"
-          >
-            {loading ? <i className="fas fa-spinner fa-spin"></i> : 'Confirmar Código'}
+
+          <button type="submit" disabled={loading || otpCode.replace(/\s/g,'').length < 6} className="login-btn login-btn--primary">
+            {loading
+              ? <><i className="fas fa-spinner fa-spin" /> Verificando...</>
+              : <><i className="fas fa-shield-check" /> Confirmar Acesso</>
+            }
           </button>
-          <button
-            type="button"
-            onClick={() => { setShowOtp(false); setOtpCode(''); setError(''); }}
-            className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider"
-          >
-            Voltar
+
+          <div className="login-otp-resend">
+            {resendCooldown > 0
+              ? <span>Reenviar código em <strong className="text-cyan-400">{resendCooldown}s</strong></span>
+              : <button type="button" onClick={handleResend} className="login-link">
+                  <i className="fas fa-redo" /> Reenviar código
+                </button>
+            }
+          </div>
+
+          <button type="button" onClick={() => { setShowOtp(false); setOtpCode(''); setError(''); }} className="login-btn login-btn--ghost">
+            <i className="fas fa-arrow-left" /> Voltar ao Login
           </button>
         </form>
       </div>
     );
   }
 
+  // ── TELA LOGIN ──
   return (
-    <div className="w-full max-w-[420px] glass-card rounded-3xl p-8 shadow-2xl relative border border-white/10">
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#00d2ff] to-transparent"></div>
+    <div className={`login-card ${mounted ? 'login-card--visible' : ''}`}>
+      <div className="login-card__glow-top" />
+      <div className="login-card__glow-bottom" />
 
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 mb-3">
-          <i className="fas fa-play-circle text-[#00d2ff] text-3xl"></i>
-          <span className="text-2xl font-bold tracking-tighter uppercase italic text-white">
-            MAXX <span className="text-[#00d2ff]">STREAM</span>
-          </span>
+      {/* Logo */}
+      <div className="login-logo">
+        <div className="login-logo__icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+            <circle cx="20" cy="20" r="20" fill="url(#lg2)" />
+            <polygon points="15,12 15,28 30,20" fill="white" />
+            <defs>
+              <linearGradient id="lg2" x1="0" y1="0" x2="40" y2="40">
+                <stop stopColor="#00d2ff" />
+                <stop offset="1" stopColor="#007bff" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
-        <h2 className="text-lg text-gray-400 font-light">Garanta sua diversão aqui com todos os canais</h2>
+        <span className="login-logo__text">MAXX <span className="login-logo__accent">STREAM</span></span>
+      </div>
+
+      <p className="login-tagline">Acesse seu painel de gerenciamento</p>
+
+      {/* Badges de segurança */}
+      <div className="login-badges">
+        <span className="login-badge"><i className="fas fa-shield-alt" /> SSL Seguro</span>
+        <span className="login-badge"><i className="fas fa-lock" /> 2FA Ativo</span>
+        <span className="login-badge login-badge--whatsapp"><i className="fab fa-whatsapp" /> WhatsApp OTP</span>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-xl text-sm mb-6 text-center animate-pulse">
-          <i className="fas fa-exclamation-triangle mr-2"></i> {error}
+        <div className="login-alert login-alert--error">
+          <i className="fas fa-exclamation-triangle" /> {error}
         </div>
       )}
-
       {success && (
-        <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-3 rounded-xl text-sm mb-6 text-center">
-          <i className="fas fa-check-circle mr-2"></i> {success}
+        <div className="login-alert login-alert--success">
+          <i className="fas fa-check-circle" /> {success}
         </div>
       )}
 
-      <form onSubmit={handleLogin} className="space-y-6">
-        <div className="relative">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">E-mail</label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">
-              <i className="fas fa-envelope"></i>
-            </span>
+      <form onSubmit={handleLogin} className="login-form">
+        <div className="login-field">
+          <label className="login-label">E-mail</label>
+          <div className="login-input-wrap">
+            <span className="login-input-icon"><i className="fas fa-envelope" /></span>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu e-mail"
-              className="glass-input w-full pl-11 pr-4 py-3 rounded-xl text-sm"
+              onChange={e => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              className="login-input"
               required
+              autoComplete="email"
             />
           </div>
         </div>
 
-        <div className="relative">
-          <div className="flex justify-between items-center mb-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Senha</label>
-            <a href="#" className="text-xs text-[#00d2ff] hover:underline">Esqueceu?</a>
+        <div className="login-field">
+          <div className="login-field__header">
+            <label className="login-label">Senha</label>
+            <button
+              type="button"
+              onClick={() => navigate('forgot')}
+              className="login-link"
+            >
+              Esqueceu a senha?
+            </button>
           </div>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">
-              <i className="fas fa-lock"></i>
-            </span>
+          <div className="login-input-wrap">
+            <span className="login-input-icon"><i className="fas fa-lock" /></span>
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Digite sua senha"
-              className="glass-input w-full pl-11 pr-12 py-3 rounded-xl text-sm"
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="login-input login-input--has-end"
               required
+              autoComplete="current-password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white"
+              className="login-input-toggle"
             >
-              <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}></i>
+              <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'} />
             </button>
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[#007bff] hover:bg-[#00d2ff] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-[#00d2ff]/20 transition-all uppercase tracking-wider text-sm hover:scale-[1.02] disabled:opacity-50"
-        >
-          {loading ? <i className="fas fa-spinner fa-spin"></i> : 'Entrar no Painel'}
+        <button type="submit" disabled={loading} className="login-btn login-btn--primary login-btn--glow">
+          {loading
+            ? <><i className="fas fa-spinner fa-spin" /> Autenticando...</>
+            : <><i className="fas fa-sign-in-alt" /> Entrar no Painel</>
+          }
         </button>
       </form>
 
-      <div className="text-center mt-8 pt-6 border-t border-white/5">
-        <p className="text-sm text-gray-400">
-          Não tem uma conta ativa?{' '}
-          <button
-            onClick={() => navigate('register')}
-            className="text-[#00d2ff] font-bold hover:underline"
-          >
-            Cadastre-se aqui
-          </button>
-        </p>
+      <div className="login-divider">
+        <span>Novo por aqui?</span>
       </div>
+
+      <button onClick={() => navigate('register')} className="login-btn login-btn--outline">
+        <i className="fas fa-user-plus" /> Criar minha conta
+      </button>
+
+      <p className="login-footer">
+        <i className="fas fa-shield-check" /> Ambiente protegido · Dados criptografados
+      </p>
     </div>
   );
 }

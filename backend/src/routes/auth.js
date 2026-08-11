@@ -17,4 +17,10 @@ router.post('/verify-login-otp', authController.verifyLoginOtp);
 // Rota de Validação OTP do Registro: POST /api/auth/verify-register-otp
 router.post('/verify-register-otp', authController.verifyRegisterOtp);
 
+// Rota de Recuperação de Senha: POST /api/auth/forgot-password
+router.post('/forgot-password', authController.forgotPassword);
+
+// Rota de Redefinição de Senha: POST /api/auth/reset-password
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

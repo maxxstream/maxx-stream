@@ -1,0 +1,28 @@
+# Dependencias locais e cache
+node_modules/
+npm-debug.log*
+
+# Auth WhatsApp (contém sessões de usuário - não sobe pro Railway)
+backend/src/services/.wwebjs_auth/
+backend/.wwebjs_auth/
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Banco de dados local (Railway usa volume persistente)
+data/*.db
+data/*.bin
+
+# Logs
+logs/
+*.log
+
+# Arquivos de instalação Windows
+*.bat
+*.ps1
+nssm.exe
+
+# Arquivos de dev
+.env
+.env.local
+.env.*.local
+frontend/node_modules/
