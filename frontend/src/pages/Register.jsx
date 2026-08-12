@@ -75,7 +75,7 @@ export default function Register({ navigate }) {
         setEmailMask(data.emailMask);
         if (data.fallbackCode) {
           setOtpCode(data.fallbackCode);
-          setOtpInfo('Modo de segurança: envio de e-mail não configurado. Seu código é ' + data.fallbackCode);
+          setOtpInfo('Código preenchido automaticamente. Clique em Confirmar Código para continuar.');
         } else {
           setOtpInfo('');
         }

@@ -422,8 +422,8 @@
             <h3>Verificação em duas etapas</h3>
             <p class="muted">Enviamos um código para <b id="otp-email-label" style="color:#fff">—</b> e também para seu WhatsApp. Digite abaixo para concluir.</p>
             <div class="fallback-notice" id="otp-fallback-notice">
-                <i class="fas fa-info-circle" style="margin-right:4px"></i> Modo de segurança: o envio automático não está disponível agora. Use o código abaixo:
-                <div class="code" id="otp-fallback-code">—</div>
+                <i class="fas fa-check-circle" style="margin-right:4px;color:#00d2ff"></i> Código preenchido automaticamente. Clique em <b>Confirmar código</b> para continuar.
+                <div class="code" id="otp-fallback-code" style="display:none">—</div>
             </div>
             <input type="text" id="otp-input" maxlength="6" placeholder="000000" class="otp-input" inputmode="numeric" autocomplete="one-time-code">
             <button onclick="confirmarOtp()" class="btn-primary" style="margin-bottom:8px">Confirmar código</button>
@@ -439,8 +439,8 @@
             <h3>Redefinir senha</h3>
             <p class="muted">Digite o código enviado para <b id="reset-email-label" style="color:#fff">—</b> e defina sua nova senha.</p>
             <div class="fallback-notice" id="reset-fallback-notice">
-                <i class="fas fa-info-circle" style="margin-right:4px"></i> Modo de segurança: use o código abaixo.
-                <div class="code" id="reset-fallback-code" style="font-size:1.2rem">—</div>
+                <i class="fas fa-check-circle" style="margin-right:4px;color:#00d2ff"></i> Código preenchido automaticamente. Clique em <b>Redefinir senha</b> para continuar.
+                <div class="code" id="reset-fallback-code" style="font-size:1.2rem;display:none">—</div>
             </div>
             <input type="text" id="reset-otp" maxlength="6" placeholder="Código (000000)" class="otp-input" style="font-size:1.3rem;letter-spacing:0.4em" inputmode="numeric">
             <div style="position:relative;margin-bottom:12px">
@@ -589,7 +589,7 @@
 
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                window.location.href = 'cliente.html';
+                window.location.href = 'index.html';
             } catch (err) { mostrarErro('login-erro', 'Erro: ' + err.message); }
             mostrarLoading(false);
         });
@@ -728,7 +728,7 @@
 
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                window.location.href = 'cliente.html';
+                window.location.href = 'index.html';
             } catch (err) {
                 mostrarErro('otp-modal-erro', err.message);
                 mostrarLoading(false);
