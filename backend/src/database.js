@@ -86,8 +86,7 @@ async function initDatabase() {
   // Planos padrão
   const planos = db.exec(`SELECT COUNT(*) as c FROM planos`);
   if (!planos[0] || planos[0].values[0][0] === 0) {
-    db.run(`INSERT INTO planos (name, price, days, connections, description) VALUES ('Mensal', 35, 30, 2, 'Melhor custo-benefício para teste')`);
-    db.run(`INSERT INTO planos (name, price, days, connections, description) VALUES ('Trimestral', 85, 90, 4, 'Mais economia com 3 meses')`);
+    db.run(`INSERT INTO planos (name, price, days, connections, description) VALUES ('Mensal', 21, 30, 2, '40% OFF — Melhor custo-benefício')`);
     db.run(`INSERT INTO planos (name, price, days, connections, description) VALUES ('Anual', 280, 365, 5, 'O plano mais vantajoso')`);
     db.run(`INSERT INTO planos (name, price, days, connections, description) VALUES ('Trial', 0, 0, 1, 'Teste grátis')`);
   }
