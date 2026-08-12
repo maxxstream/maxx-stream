@@ -20,12 +20,49 @@ function getSetting(key, fallback = '') {
 }
 
 exports.isEmailConfigured = () => {
+    const resend = process.env.RESEND_API_KEY || '';
+    if (resend) return true;
     const brevo = getSetting('brevo_api_key', process.env.BREVO_API_KEY || '');
     if (brevo) return true;
     const host = getSetting('smtp_host', process.env.SMTP_HOST || '');
     const user = getSetting('smtp_user', process.env.SMTP_USER || '');
     const pass = getSetting('smtp_pass', process.env.SMTP_PASS || '');
     return !!(host && user && pass);
+};
+
+// Resend (resend.com) — provedor principal
+exports.sendEmailResend = (to, toName, subject, htmlContent) => {
+    return new Promise((resolve, reject) => {
+        const apiKey = process.env.RESEND_API_KEY || '';
+        if (!apiKey) return reject(new Error('RESEND_API_KEY nao configurada'));
+        const fromName = getSetting('email_from_name', EMAIL_FROM_NAME);
+        const body = JSON.stringify({
+            from: `${fromName} <onboarding@resend.dev>`,
+            to: [to],
+            subject,
+            html: htmlContent
+        });
+        const req = https.request({
+            hostname: 'api.resend.com',
+            path: '/emails',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + apiKey,
+                'Content-Length': Buffer.byteLength(body)
+            }
+        }, (res) => {
+            let d = '';
+            res.on('data', c => d += c);
+            res.on('end', () => {
+                if (res.statusCode < 300) resolve(JSON.parse(d));
+                else reject(new Error('Resend erro ' + res.statusCode + (d ? ' - ' + d.slice(0, 200) : '')));
+            });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+    });
 };
 
 exports.sendEmailBrevo = (to, toName, subject, htmlContent) => {
@@ -62,16 +99,19 @@ exports.sendEmailSmtp = (to, toName, subject, htmlContent) => {
     });
 };
 
-// Tenta Brevo primeiro e, se falhar, usa o SMTP configurado.
+// Tenta Resend -> Brevo -> SMTP (nessa ordem)
 exports.sendEmailFlex = async (to, toName, subject, htmlContent) => {
     const erros = [];
     try {
+        return await exports.sendEmailResend(to, toName, subject, htmlContent);
+    } catch (e) { erros.push('Resend: ' + e.message); }
+    try {
         return await exports.sendEmailBrevo(to, toName, subject, htmlContent);
-    } catch (e) { erros.push(e.message); }
+    } catch (e) { erros.push('Brevo: ' + e.message); }
     try {
         return await exports.sendEmailSmtp(to, toName, subject, htmlContent);
-    } catch (e) { erros.push(e.message); }
-    throw new Error('E-mail indisponível (' + erros.join(' | ') + ')');
+    } catch (e) { erros.push('SMTP: ' + e.message); }
+    throw new Error('E-mail indisponivel (' + erros.join(' | ') + ')');
 };
 
 exports.sendEmail = async (to, toName, assunto, mensagem) => {
