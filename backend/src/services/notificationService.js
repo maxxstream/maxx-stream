@@ -30,14 +30,19 @@ exports.isEmailConfigured = () => {
     return !!(host && user && pass);
 };
 
-// Resend (resend.com) — provedor principal
+// Resend (resend.com) — requer domínio verificado em resend.com/domains
+// Só funciona se RESEND_FROM_EMAIL estiver configurado (ex: naoresponda@seudominio.com.br)
 exports.sendEmailResend = (to, toName, subject, htmlContent) => {
     return new Promise((resolve, reject) => {
         const apiKey = process.env.RESEND_API_KEY || '';
         if (!apiKey) return reject(new Error('RESEND_API_KEY nao configurada'));
+        // onboarding@resend.dev só envia para o email do próprio dono da conta Resend
+        // Para clientes, é OBRIGATÓRIO ter domínio verificado e definir RESEND_FROM_EMAIL
+        const fromEmail = process.env.RESEND_FROM_EMAIL || '';
+        if (!fromEmail) return reject(new Error('RESEND_FROM_EMAIL nao configurado (dominio verificado necessario)'));
         const fromName = getSetting('email_from_name', EMAIL_FROM_NAME);
         const body = JSON.stringify({
-            from: `${fromName} <onboarding@resend.dev>`,
+            from: `${fromName} <${fromEmail}>`,
             to: [to],
             subject,
             html: htmlContent
@@ -99,18 +104,18 @@ exports.sendEmailSmtp = (to, toName, subject, htmlContent) => {
     });
 };
 
-// Tenta Resend -> Brevo -> SMTP (nessa ordem)
+// Tenta Brevo -> SMTP -> Resend (Resend só funciona com domínio verificado)
 exports.sendEmailFlex = async (to, toName, subject, htmlContent) => {
     const erros = [];
-    try {
-        return await exports.sendEmailResend(to, toName, subject, htmlContent);
-    } catch (e) { erros.push('Resend: ' + e.message); }
     try {
         return await exports.sendEmailBrevo(to, toName, subject, htmlContent);
     } catch (e) { erros.push('Brevo: ' + e.message); }
     try {
         return await exports.sendEmailSmtp(to, toName, subject, htmlContent);
     } catch (e) { erros.push('SMTP: ' + e.message); }
+    try {
+        return await exports.sendEmailResend(to, toName, subject, htmlContent);
+    } catch (e) { erros.push('Resend: ' + e.message); }
     throw new Error('E-mail indisponivel (' + erros.join(' | ') + ')');
 };
 
