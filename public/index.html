@@ -47,14 +47,21 @@
         @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-30px); } }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 9998; display: none; justify-content: center; align-items: center; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); z-index: 9998; display: none; justify-content: center; align-items: center; padding: 16px; }
         .modal-overlay.open { display: flex; }
-        .modal-box { background: #0c0c1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .glass-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; padding: 14px 16px; width: 100%; outline: none; transition: 0.3s; }
-        .glass-input:focus { border-color: #00d2ff; box-shadow: 0 0 0 3px rgba(0,210,255,0.1); }
-        .glass-input::placeholder { color: rgba(255,255,255,0.3); }
+        .modal-box { background: linear-gradient(135deg, #0a0a1a 0%, #0d0d20 100%); border: 1px solid rgba(0,210,255,0.15); border-radius: 24px; padding: 36px 32px; width: 100%; max-width: 460px; animation: fadeInModal 0.35s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden; }
+        .modal-box::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,210,255,0.08) 0%, transparent 70%); pointer-events: none; }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.92) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .glass-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; padding: 14px 16px; width: 100%; outline: none; transition: 0.3s; font-size: 0.95rem; }
+        .glass-input:focus { border-color: #00d2ff; box-shadow: 0 0 0 3px rgba(0,210,255,0.1); background: rgba(0,210,255,0.04); }
+        .glass-input::placeholder { color: rgba(255,255,255,0.25); }
         img { max-width: 100%; height: auto; }
+        /* Gate notification bar */
+        .gate-notify { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 9997; background: linear-gradient(90deg, rgba(0,210,255,0.12), rgba(0,123,255,0.12)); border: 1px solid rgba(0,210,255,0.3); border-radius: 50px; padding: 10px 22px; display: none; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: #00d2ff; white-space: nowrap; backdrop-filter: blur(10px); box-shadow: 0 4px 24px rgba(0,210,255,0.1); animation: notifyPulse 2s ease-in-out infinite; cursor: pointer; }
+        .gate-notify.show { display: flex; }
+        @keyframes notifyPulse { 0%, 100% { box-shadow: 0 4px 24px rgba(0,210,255,0.1); } 50% { box-shadow: 0 4px 32px rgba(0,210,255,0.25); } }
+        .modal-close-btn { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.07); border: none; color: rgba(255,255,255,0.4); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .modal-close-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
         @media (max-width: 640px) { .slide { background-size: cover; }
             h1, .hero-title { font-size: 2rem !important; line-height: 1.1 !important; }
             .hero-subtitle { font-size: 1rem !important; }
@@ -472,8 +479,57 @@
 
     <div id="toast-container"></div>
 
+    <!-- Notificação de gate (barra superior) -->
+    <div class="gate-notify" id="gate-notify" onclick="abrirModalCadastro(null)">
+        <i class="fas fa-user-plus"></i>
+        <span>Cadastre-se para ter acesso completo!</span>
+        <i class="fas fa-arrow-right" style="font-size:0.75rem"></i>
+    </div>
+
+    <!-- Modal de Cadastro (Gate) -->
+    <div class="modal-overlay" id="modal-gate" onclick="fecharModalGate(event)">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="fecharModalGate()" aria-label="Fechar"><i class="fas fa-times"></i></button>
+
+            <!-- Cabeçalho -->
+            <div style="text-align:center;margin-bottom:24px">
+                <div style="width:56px;height:56px;background:linear-gradient(135deg,rgba(0,210,255,0.2),rgba(0,123,255,0.2));border:1px solid rgba(0,210,255,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+                    <i class="fas fa-user-plus" style="color:#00d2ff;font-size:1.4rem"></i>
+                </div>
+                <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:6px">Crie sua conta grátis! 🚀</h2>
+                <p style="color:rgba(255,255,255,0.45);font-size:0.85rem;line-height:1.5">Cadastre-se para ter acesso ao painel, acompanhar seu plano e falar direto com nosso suporte.</p>
+            </div>
+
+            <!-- Alerta de acesso bloqueado -->
+            <div id="gate-alert" style="background:rgba(0,210,255,0.07);border:1px solid rgba(0,210,255,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:20px">
+                <i class="fas fa-lock" style="color:#00d2ff;font-size:1rem;flex-shrink:0"></i>
+                <span style="color:rgba(255,255,255,0.7);font-size:0.82rem" id="gate-alert-msg">Para acessar esse recurso, você precisa ter uma conta.</span>
+            </div>
+
+            <!-- Formulário -->
+            <form id="form-gate" onsubmit="submitGateForm(event)" autocomplete="off">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <input id="gate-name" class="glass-input" type="text" placeholder="Seu nome completo" required minlength="2">
+                    <input id="gate-email" class="glass-input" type="email" placeholder="Seu melhor e-mail" required>
+                    <input id="gate-phone" class="glass-input" type="tel" placeholder="WhatsApp com DDD (ex: 11999999999)" required>
+                    <input id="gate-pass" class="glass-input" type="password" placeholder="Crie uma senha (mín. 6 caracteres)" required minlength="6">
+                </div>
+
+                <div id="gate-error" style="display:none;background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.2);border-radius:10px;padding:10px 14px;color:#ff6b6b;font-size:0.82rem;margin-top:12px"></div>
+
+                <button type="submit" id="gate-btn" style="width:100%;margin-top:16px;background:linear-gradient(90deg,#007bff,#00d2ff);border:none;border-radius:14px;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.95rem;padding:16px;cursor:pointer;letter-spacing:0.5px;transition:opacity 0.2s;text-transform:uppercase">
+                    <i class="fas fa-rocket" style="margin-right:8px"></i>Criar minha conta grátis
+                </button>
+            </form>
+
+            <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:rgba(255,255,255,0.3)">
+                Já tem conta? <a href="login.html" style="color:#00d2ff;font-weight:600">Entrar aqui</a>
+            </p>
+        </div>
+    </div>
+
     <!-- WhatsApp Flutuante -->
-    <a href="https://wa.me/5519986105935" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-2xl z-50 hover:scale-110 transition-transform">
+    <a href="#" onclick="interceptarAcao(event,'https://wa.me/5519986105935')" class="fixed bottom-6 right-6 bg-[#25D366] w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-2xl z-50 hover:scale-110 transition-transform" aria-label="WhatsApp">
         <i class="fab fa-whatsapp text-white"></i>
     </a>
 
@@ -651,6 +707,137 @@
             toastIdx++;
         }, 10000);
 
+        // ═══════════════════════════════════════════
+        // SISTEMA DE GATE — CADASTRO OBRIGATÓRIO
+        // ═══════════════════════════════════════════
+        let _acaoDestino = null; // URL/ação a executar após cadastro
+
+        function usuarioCadastrado() {
+            return !!localStorage.getItem('maxx_token');
+        }
+
+        function abrirModalCadastro(urlDestino, mensagem) {
+            _acaoDestino = urlDestino || null;
+            const alertMsg = document.getElementById('gate-alert-msg');
+            if (mensagem) alertMsg.textContent = mensagem;
+            else alertMsg.textContent = 'Para acessar esse recurso, você precisa ter uma conta.';
+            document.getElementById('gate-error').style.display = 'none';
+            document.getElementById('modal-gate').classList.add('open');
+            document.getElementById('gate-name').focus();
+        }
+
+        function fecharModalGate(event) {
+            if (event && event.target !== document.getElementById('modal-gate')) return;
+            document.getElementById('modal-gate').classList.remove('open');
+        }
+
+        // Intercepta qualquer ação — se não cadastrado, abre modal
+        function interceptarAcao(event, url, mensagem) {
+            event.preventDefault();
+            if (usuarioCadastrado()) {
+                // Usuário logado: vai direto
+                window.open(url, '_blank');
+            } else {
+                // Não cadastrado: mostra modal
+                abrirModalCadastro(url, mensagem);
+            }
+        }
+
+        // Mostrar barra de notificação superior para não cadastrados
+        function verificarGateNotify() {
+            if (!usuarioCadastrado()) {
+                setTimeout(() => {
+                    document.getElementById('gate-notify').classList.add('show');
+                }, 3000);
+            }
+        }
+        verificarGateNotify();
+
+        // Interceptar todos os botões/links de ação (WhatsApp, assinar, etc.)
+        document.addEventListener('DOMContentLoaded', function() {});
+        window.addEventListener('load', function() {
+            // Seleciona todos os links de ação (wa.me, assinar, teste grátis)
+            const botoesAcao = document.querySelectorAll(
+                'a[href*="wa.me"], a[href*="whatsapp"]'
+            );
+            botoesAcao.forEach(btn => {
+                // Pula o botão flutuante de WhatsApp (já tratado inline)
+                if (btn.classList.contains('fixed')) return;
+                const urlOriginal = btn.href;
+                btn.href = '#';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (usuarioCadastrado()) {
+                        window.open(urlOriginal, '_blank');
+                    } else {
+                        let msg = 'Cadastre-se gratuitamente para continuar!';
+                        const texto = btn.textContent.trim().toLowerCase();
+                        if (texto.includes('assinar')) msg = '🔒 Para assinar um plano, crie sua conta primeiro!';
+                        else if (texto.includes('teste') || texto.includes('grátis')) msg = '🎁 Para pedir seu teste grátis, crie sua conta!';
+                        else if (texto.includes('ajuda') || texto.includes('suporte')) msg = '💬 Para falar com o suporte, crie sua conta primeiro!';
+                        abrirModalCadastro(urlOriginal, msg);
+                    }
+                });
+            });
+        });
+
+        // Submit do formulário do gate
+        async function submitGateForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('gate-btn');
+            const errDiv = document.getElementById('gate-error');
+            errDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>Criando conta...';
+
+            const name = document.getElementById('gate-name').value.trim();
+            const email = document.getElementById('gate-email').value.trim();
+            const phone = document.getElementById('gate-phone').value.trim();
+            const password = document.getElementById('gate-pass').value;
+
+            try {
+                const res = await fetch(API + '/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Erro ao criar conta.');
+                }
+
+                // Sucesso! Salva token se veio direto (sem OTP)
+                if (data.token) {
+                    localStorage.setItem('maxx_token', data.token);
+                    localStorage.setItem('maxx_user', JSON.stringify(data.user));
+                }
+
+                // Fecha modal e redireciona para ação desejada
+                document.getElementById('modal-gate').classList.remove('open');
+                document.getElementById('gate-notify').classList.remove('show');
+
+                // Toast de boas-vindas
+                const container = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                t.className = 'toast-notification';
+                t.innerHTML = `<div style="font-size:1.3rem">🎉</div><div><span style="font-weight:600">Bem-vindo, ${name.split(' ')[0]}!</span><br><span style="font-size:0.8rem;color:rgba(255,255,255,0.5)">Conta criada com sucesso!</span></div>`;
+                container.appendChild(t);
+                setTimeout(() => { t.style.animation = 'slideOut 0.3s ease'; setTimeout(() => t.remove(), 300); }, 4000);
+
+                // Redireciona para a ação original
+                if (_acaoDestino) {
+                    setTimeout(() => window.open(_acaoDestino, '_blank'), 600);
+                }
+
+            } catch (err) {
+                errDiv.textContent = err.message;
+                errDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:8px"></i>Criar minha conta grátis';
+            }
+        }
 
     </script>
 </body>
